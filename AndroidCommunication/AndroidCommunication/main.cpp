@@ -8,6 +8,11 @@ SOCKET sockfd_gui;
 SOCKET sockfd_gui_client;
 char buffer[1024];
 
+struct androidPacket {
+	char size[4];
+	char dts[8];
+};
+
 int main() {
 	struct sockaddr_in gui_addr;
 	WSADATA guiData;
@@ -36,7 +41,13 @@ int main() {
 
 	sprintf(buffer, "test");
 
-	send(sockfd_gui_client, buffer, sizeof(buffer), 0);
+	androidPacket test;
+	ZeroMemory((char*)&test, sizeof(test));
+	*((int*)test.size) = 11234;
+	*((long*)test.dts) = 7894561;
+
+
+	send(sockfd_gui_client, (char*)&test, sizeof(androidPacket), 0);
 
 	closesocket(sockfd_gui);
 	closesocket(sockfd_gui_client);
