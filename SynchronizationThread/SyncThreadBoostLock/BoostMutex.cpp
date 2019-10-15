@@ -41,7 +41,7 @@ void threadFunc(int threadNum) {
 		send(threadNum);
 	}
 }
-boost::mutex io_mutex;
+
 
 void
 runningThreadFunc() {
@@ -55,6 +55,7 @@ runningThreadFunc() {
 
 }
 
+//boost::mutex io_mutex;
 //void count(int id)
 //{
 //	for (int i = 0; i < 10; i++)
