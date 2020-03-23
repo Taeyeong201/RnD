@@ -1,5 +1,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/scoped_thread.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/asio.hpp>
 #include <boost/random.hpp>
 #include <chrono>
@@ -33,6 +34,7 @@ void send(int threadNum) {
 	std::cout << "send num > " << threadNum << std::endl;
 }
 void threadFunc(int threadNum) {
+
 	for (int x = 0; x < 10; x++)
 	{
 		cap(threadNum);
@@ -52,7 +54,6 @@ runningThreadFunc() {
 	}
 	for (std::thread& thd : threads) thd.join();
 	threads.clear();
-
 }
 
 //boost::mutex io_mutex;
