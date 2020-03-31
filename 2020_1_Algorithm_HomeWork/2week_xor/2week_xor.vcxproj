@@ -23,6 +23,7 @@
     <ProjectGuid>{62BE517B-DE1C-44FB-95EE-74469F33CFF6}</ProjectGuid>
     <RootNamespace>My2week</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>2week_xor</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

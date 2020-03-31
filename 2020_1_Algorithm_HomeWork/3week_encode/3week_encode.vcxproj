@@ -23,7 +23,7 @@
     <ProjectGuid>{B02DF47D-5463-4BCF-BB68-D9D1A4EA123A}</ProjectGuid>
     <RootNamespace>My20201AlgorithmHomeWork</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>3week</ProjectName>
+    <ProjectName>3week_encode</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
