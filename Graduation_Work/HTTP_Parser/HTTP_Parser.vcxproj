@@ -116,6 +116,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\work\RnD\Graduation_Work\HTTP_Parser\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,11 +140,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="http_response_parser.c" />
-    <ClCompile Include="main.c" />
+    <ClCompile Include="response.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="http_response_parser.h" />
+    <ClInclude Include="src\httpparser\httprequestparser.h" />
+    <ClInclude Include="src\httpparser\httpresponseparser.h" />
+    <ClInclude Include="src\httpparser\request.h" />
+    <ClInclude Include="src\httpparser\response.h" />
+    <ClInclude Include="src\httpparser\urlparser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
