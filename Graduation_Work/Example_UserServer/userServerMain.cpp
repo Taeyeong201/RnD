@@ -3,21 +3,20 @@
 #include "st_common.h"
 #include "ConnectManager.h"
 #include "SocketUtil.h"
+#include "Puncher.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define TASK_SCHEDULER_PRIORITY_LOW       0
 #define TASK_SCHEDULER_PRIORITY_NORMAL    1
-#define TASK_SCHEDULER_PRIORITYO_HIGH     2 
+#define TASK_SCHEDULER_PRIORITYO_HIGH     2
 #define TASK_SCHEDULER_PRIORITY_HIGHEST   3
 #define TASK_SCHEDULER_PRIORITY_REALTIME  4
 
 #define RECV_TEST
 #define SEND_TEST
 
-int main()
-{
-
+int main() {
 	// Load Windows Socket DLL
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData))
@@ -55,18 +54,31 @@ int main()
 
 	bool bResult = false;
 	int ret = 0;
-
-	std::string ip = "172.30.1.50";
+	std::string ip = ST::SocketUtil::GetLocalIPAddress();
+	std::cout << "local ip : " << ip << std::endl;
 	uint16_t port = 9000;
 
 	char* sendbuf = (char*)malloc(512);
 	char* recvbuf = (char*)malloc(512);
 
-	uint32_t sendlen = _msize(sendbuf);
-	uint32_t recvlen = _msize(recvbuf);
+	size_t sendlen = _msize(sendbuf);
+	size_t recvlen = _msize(recvbuf);
 
+	std::string str1 =
+		"{\n"
+		"\"name\": \"Hyun\",\n"
+		"\"age\": \"24\",\n"
+		"\"addr\": \"JeJu\",\n"
+		"\"tel\": \"010-222-3333\"\n"
+		"}";
+
+	ST::Puncher STPuncher("219.248.240.15", 3001);
+	//STPuncher.sendServer(str1);
+	STPuncher.start();
+	STPuncher.sendDataQueuing(str1);
+	std::cout << "recv \n" << STPuncher.recvServer() << std::endl;
 	std::shared_ptr<ST::ConnectManager> tcpSocket(new ST::ConnectManager);
-	SOCKET clientSocketfd;
+	SOCKET clientSocketfd = -1;
 
 	tcpSocket->create();
 	//SocketUtil::setReuseAddr(tcpSocket->fd());
@@ -74,48 +86,46 @@ int main()
 	//SocketUtil::setNonBlock(tcpSocket->fd());
 	//SocketUtil::setKeepAlive(tcpSocket->fd());
 
- 	bResult = tcpSocket->connect(ip, port);
+	//bResult = tcpSocket->bind(ip, port);
+	bResult = tcpSocket->bind(port);
 	if (FALSE == bResult)
 	{
-		std::cerr << "main tcpSocket connect failed" << std::endl;
+		std::cerr << "main tcpSocket bind failed" << std::endl;
 		std::cerr << "GetLastError : " << WSAGetLastError() << std::endl;
 
 		goto EXIT;
 	}
 
-#ifdef RECV_TEST
-
-	ret = ::recv(tcpSocket->fd(), (char*)recvbuf, recvlen, 0);
-	if (ret == -1)
+	bResult = tcpSocket->listen(SOMAXCONN);
+	if (FALSE == bResult)
 	{
-		// Error Handling;
-		std::cout << "Error Handling Please" << std::endl;
+		std::cerr << "main tcpSocket listen failed" << std::endl;
+		std::cerr << "GetLastError : " << WSAGetLastError() << std::endl;
+
+		goto EXIT;
+	}
+	STPuncher.stop();
+
+	std::cout << "Listening........" << std::endl;
+
+
+	clientSocketfd = tcpSocket->accept();
+	if (clientSocketfd <= 0)
+	{
+		std::cerr << "main tcpSocket accept failed" << std::endl;
+		std::cerr << "GetLastError : " << WSAGetLastError() << std::endl;
+
 		goto EXIT;
 	}
 
-	else if (ret == 0)
-	{
-		std::cout << "This socket is dead. close this socket" << std::endl;
-		goto EXIT;
-	}
-	else // Recv OK
-	{
-		//if (ret < wantrecvsize) // This case can not receive hole data
-		//{
-		//      // Return Get Data
-		//      return ret;
-		//}
-		//else
-		std::cout << "All Received!" << std::endl;
+	std::cout << "Accept OK!" << std::endl;
 
-		std::cout << "[RECV message] \n\t" << recvbuf << std::endl;
-	}
-#endif
 #ifdef SEND_TEST
-	strcpy(sendbuf, "Hello Im RX, This is send test bye!\n");
+
+	strcpy(sendbuf, "Hello Im TX, This is send test bye!\n");
 
 	// TODO : What is diff send return values
-	ret = ::send(tcpSocket->fd(), (char*)sendbuf, sendlen, 0);
+	ret = ::send(clientSocketfd, (char*)sendbuf, sendlen, 0);
 	if (ret > 0)
 	{
 		std::cout << "Send OK - sendsize: " << ret << std::endl;
@@ -137,14 +147,42 @@ int main()
 	}
 #endif
 
+#ifdef RECV_TEST
+	ret = ::recv(clientSocketfd, (char*)recvbuf, recvlen, 0);
+	if (ret == -1)
+	{
+		// Error Handling;
+		std::cout << "Error Recv return -1, Handling Please" << std::endl;
+		goto EXIT;
+	}
+	else if (ret == 0)
+	{
+		std::cout << "Recv return 0, This socket is dead. close this socket" << std::endl;
+		goto EXIT;
+	}
+	else // Recv OK
+	{
+		//if (ret < wantrecvsize) // This case can not receive hole data
+		//{
+		//      // Return Get Data
+		//      return ret;
+		//}
+		//else
+		std::cout << "All Received!" << std::endl;
+
+		std::cout << "[RECV message] " << recvbuf << std::endl;
+	}
+#endif
+
 EXIT:
 	free(sendbuf);
 	free(recvbuf);
 
+	ST::SocketUtil::close(clientSocketfd);
 	tcpSocket->close();
 
 	// Unload Windows Socket DLL
 	WSACleanup();
 
 	return 0;
-}
+};

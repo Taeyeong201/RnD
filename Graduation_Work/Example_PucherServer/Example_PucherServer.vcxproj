@@ -151,11 +151,13 @@ copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(Solut
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="inc\ConnectManager.h" />
+    <ClInclude Include="inc\Puncher.h" />
     <ClInclude Include="inc\SocketUtil.h" />
     <ClInclude Include="inc\st_common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ConnectManager.cpp" />
+    <ClCompile Include="src\Puncher.cpp" />
     <ClCompile Include="src\SocketUtil.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -43,6 +43,25 @@ bool ST::ConnectManager::bind(std::string ip, uint16_t port)
     return true;
 }
 
+bool ST::ConnectManager::bind(uint16_t port)
+{
+    struct sockaddr_in addr = { 0 };
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_port = htons(port);
+
+    if (::bind(_sockfd, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
+    {
+        std::cerr << "socket = " << _sockfd
+            << " bind failed - " << " Port : " << port << std::endl;
+
+        return false;
+    }
+
+    return true;
+    return false;
+}
+
 bool ST::ConnectManager::listen(int backlog)
 {
     if (::listen(_sockfd, backlog) == SOCKET_ERROR)

@@ -12,6 +12,7 @@ namespace ST {
         virtual SOCKET create();
 
         virtual bool bind(std::string ip, uint16_t port);
+        virtual bool bind(uint16_t port);
         virtual bool listen(int backlog);
         virtual SOCKET accept();
 

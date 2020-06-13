@@ -18,7 +18,7 @@ char* readUrl2(const char* szUrl, long& bytesReturnedOut, char** headerOut);
 int main()
 {
     const int bufLen = 1024;
-    const char* szUrl = "http://stackoverflow.com";
+    const char* szUrl = "http://219.248.240.15:3001/customers/1";
     long fileSize;
     char* memBuffer, *headerBuffer;
     FILE* fp;
@@ -89,22 +89,19 @@ SOCKET connectToServer(char* szServerName, uint16_t portNum)
     if (inet_addr(szServerName) == INADDR_NONE)
     {
         hp = gethostbyname(szServerName);
+        server.sin_addr.s_addr = *((unsigned long*)hp->h_addr);
+        server.sin_family = AF_INET;
+        server.sin_port = htons(portNum);
     }
     else
     {
         addr = inet_addr(szServerName);
-        hp = gethostbyaddr((char*)&addr, sizeof(addr), AF_INET);
+        server.sin_addr.s_addr = addr;
+        server.sin_family = AF_INET;
+        server.sin_port = htons(portNum);
+        //hp = gethostbyaddr((char*)&addr, sizeof(addr), AF_INET);
     }
 
-    if (hp == NULL)
-    {
-        closesocket(conn);
-        return NULL;
-    }
-
-    server.sin_addr.s_addr = *((unsigned long*)hp->h_addr);
-    server.sin_family = AF_INET;
-    server.sin_port = htons(portNum);
     if (connect(conn, (struct sockaddr*)&server, sizeof(server)))
     {
         closesocket(conn);

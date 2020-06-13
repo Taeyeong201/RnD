@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 105
+Server: Werkzeug/0.14.1 Python/2.7.13
+Date: Tue, 27 Feb 2018 22:19:18 GMT
+
+{"meunction checksumcksum, expected [0], but got [<fssage": "Bad che at 0x03DC19B0>].", "result": "fail"}

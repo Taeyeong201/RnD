@@ -2,6 +2,7 @@
 
 
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 #include <WinSock2.h>
