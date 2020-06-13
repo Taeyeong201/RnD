@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_UserServer", "Example_UserServer\Example_UserServer.vcxproj", "{39020295-0DC6-4CAC-8E19-4770B469970A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48551254-55AC-48B0-B467-1C588B55E291} = {48551254-55AC-48B0-B467-1C588B55E291}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_UserClient", "Example_UserClient\Example_UserClient.vcxproj", "{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48551254-55AC-48B0-B467-1C588B55E291} = {48551254-55AC-48B0-B467-1C588B55E291}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_PucherServer", "Example_PucherServer\Example_PucherServer.vcxproj", "{48551254-55AC-48B0-B467-1C588B55E291}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HTTPConnectTest", "HTTPConnectTest\HTTPConnectTest.vcxproj", "{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Debug|x64.ActiveCfg = Debug|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Debug|x64.Build.0 = Debug|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Debug|x86.ActiveCfg = Debug|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Debug|x86.Build.0 = Debug|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Release|x64.ActiveCfg = Release|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Release|x64.Build.0 = Release|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Release|x86.ActiveCfg = Release|x64
+		{39020295-0DC6-4CAC-8E19-4770B469970A}.Release|x86.Build.0 = Release|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Debug|x64.ActiveCfg = Debug|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Debug|x64.Build.0 = Debug|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Debug|x86.ActiveCfg = Debug|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Debug|x86.Build.0 = Debug|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Release|x64.ActiveCfg = Release|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Release|x64.Build.0 = Release|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Release|x86.ActiveCfg = Release|x64
+		{A47F7263-5B81-48B7-98CE-9DA3DD9D40B1}.Release|x86.Build.0 = Release|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Debug|x64.ActiveCfg = Debug|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Debug|x64.Build.0 = Debug|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Debug|x86.ActiveCfg = Debug|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Debug|x86.Build.0 = Debug|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Release|x64.ActiveCfg = Release|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Release|x64.Build.0 = Release|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Release|x86.ActiveCfg = Release|x64
+		{48551254-55AC-48B0-B467-1C588B55E291}.Release|x86.Build.0 = Release|x64
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Debug|x64.ActiveCfg = Debug|x64
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Debug|x64.Build.0 = Debug|x64
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Debug|x86.ActiveCfg = Debug|Win32
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Debug|x86.Build.0 = Debug|Win32
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Release|x64.ActiveCfg = Release|x64
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Release|x64.Build.0 = Release|x64
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Release|x86.ActiveCfg = Release|Win32
+		{C04AD4C1-2ABD-4E2E-82D4-5AEA6E2FE4A3}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4EFB0822-B397-48BF-A023-357854A421BE}
+	EndGlobalSection
+EndGlobal
