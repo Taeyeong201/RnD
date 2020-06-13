@@ -12,6 +12,9 @@
 #define TASK_SCHEDULER_PRIORITY_HIGHEST   3
 #define TASK_SCHEDULER_PRIORITY_REALTIME  4
 
+#define RECV_TEST
+#define SEND_TEST
+
 int main() {
     // Load Windows Socket DLL
     WSADATA wsaData;
@@ -101,7 +104,7 @@ int main() {
     std::cout << "Accept OK!" << std::endl;
 
 
-#if SEND_TEST
+#ifdef SEND_TEST
 
     strcpy(sendbuf, "Hello Im TX, This is send test bye!\n");
 
@@ -128,7 +131,7 @@ int main() {
     }
 #endif
 
-#if RECV_TEST
+#ifdef RECV_TEST
     ret = ::recv(clientSocketfd, (char*)recvbuf, recvlen, 0);
     if (ret == -1)
     {

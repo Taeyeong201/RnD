@@ -9,6 +9,7 @@
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 
+#pragma warning( disable : 4996)
 
 #ifdef STDLLEXPORT
 #define ST_DLL __declspec(dllexport)

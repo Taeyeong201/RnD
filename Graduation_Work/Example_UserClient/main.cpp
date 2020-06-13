@@ -12,6 +12,9 @@
 #define TASK_SCHEDULER_PRIORITY_HIGHEST   3
 #define TASK_SCHEDULER_PRIORITY_REALTIME  4
 
+#define RECV_TEST
+#define SEND_TEST
+
 int main()
 {
 
@@ -80,33 +83,7 @@ int main()
 		goto EXIT;
 	}
 
-#if SEND_TEST
-	strcpy(sendbuf, "Hello Im RX, This is send test bye!\n");
-
-	// TODO : What is diff send return values
-	ret = ::send(tcpSocket->fd(), (char*)sendbuf, sendlen, 0);
-	if (ret > 0)
-	{
-		std::cout << "Send OK - sendsize: " << ret << std::endl;
-	}
-	else if (ret < 0)
-	{
-		std::cout << "Send ret < 0" << std::endl;
-#if defined(__linux) || defined(__linux__)
-		if (errno == EINTR || errno == EAGAIN)
-#elif defined(WIN32) || defined(_WIN32)
-		int error = WSAGetLastError();
-		if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
-#endif
-			ret = 0;
-	}
-	else
-	{
-		std::cout << "Send ret = 0" << std::endl;
-	}
-#endif
-
-#if RECV_TEST
+#ifdef RECV_TEST
 
 	ret = ::recv(tcpSocket->fd(), (char*)recvbuf, recvlen, 0);
 	if (ret == -1)
@@ -132,6 +109,31 @@ int main()
 		std::cout << "All Received!" << std::endl;
 
 		std::cout << "[RECV message] \n\t" << recvbuf << std::endl;
+	}
+#endif
+#ifdef SEND_TEST
+	strcpy(sendbuf, "Hello Im RX, This is send test bye!\n");
+
+	// TODO : What is diff send return values
+	ret = ::send(tcpSocket->fd(), (char*)sendbuf, sendlen, 0);
+	if (ret > 0)
+	{
+		std::cout << "Send OK - sendsize: " << ret << std::endl;
+	}
+	else if (ret < 0)
+	{
+		std::cout << "Send ret < 0" << std::endl;
+#if defined(__linux) || defined(__linux__)
+		if (errno == EINTR || errno == EAGAIN)
+#elif defined(WIN32) || defined(_WIN32)
+		int error = WSAGetLastError();
+		if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
+#endif
+			ret = 0;
+	}
+	else
+	{
+		std::cout << "Send ret = 0" << std::endl;
 	}
 #endif
 

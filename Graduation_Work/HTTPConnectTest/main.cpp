@@ -18,7 +18,7 @@ char* readUrl2(const char* szUrl, long& bytesReturnedOut, char** headerOut);
 int main()
 {
     const int bufLen = 1024;
-    const char* szUrl = "http://www.google.com";
+    const char* szUrl = "http://stackoverflow.com";
     long fileSize;
     char* memBuffer, *headerBuffer;
     FILE* fp;

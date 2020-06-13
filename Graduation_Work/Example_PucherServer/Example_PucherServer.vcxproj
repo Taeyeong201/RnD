@@ -153,10 +153,8 @@ copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(Solut
     <ClInclude Include="inc\ConnectManager.h" />
     <ClInclude Include="inc\SocketUtil.h" />
     <ClInclude Include="inc\st_common.h" />
-    <ClInclude Include="Puncher.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Puncher.cpp" />
     <ClCompile Include="src\ConnectManager.cpp" />
     <ClCompile Include="src\SocketUtil.cpp" />
   </ItemGroup>
