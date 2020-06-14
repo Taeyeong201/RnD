@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\jsoncpp">
+      <UniqueIdentifier>{e9138c41-fe11-40f1-a958-05a38590d01a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\jsoncpp">
+      <UniqueIdentifier>{7248d92f-8010-478c-a8b4-64c2e0958d26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\ConnectManager.h">
@@ -27,6 +33,39 @@
     <ClInclude Include="inc\Puncher.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="src\jsoncpp\json_tool.h">
+      <Filter>소스 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\allocator.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\assertions.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\config.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\forwards.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\json.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\json_features.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\reader.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\value.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\version.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\jsoncpp\writer.h">
+      <Filter>헤더 파일\jsoncpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ConnectManager.cpp">
@@ -38,5 +77,19 @@
     <ClCompile Include="src\Puncher.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\jsoncpp\json_reader.cpp">
+      <Filter>소스 파일\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jsoncpp\json_value.cpp">
+      <Filter>소스 파일\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jsoncpp\json_writer.cpp">
+      <Filter>소스 파일\jsoncpp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\jsoncpp\json_valueiterator.inl">
+      <Filter>소스 파일\jsoncpp</Filter>
+    </None>
   </ItemGroup>
 </Project>

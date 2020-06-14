@@ -151,14 +151,31 @@ copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(Solut
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="inc\ConnectManager.h" />
+    <ClInclude Include="inc\jsoncpp\allocator.h" />
+    <ClInclude Include="inc\jsoncpp\assertions.h" />
+    <ClInclude Include="inc\jsoncpp\config.h" />
+    <ClInclude Include="inc\jsoncpp\forwards.h" />
+    <ClInclude Include="inc\jsoncpp\json.h" />
+    <ClInclude Include="inc\jsoncpp\json_features.h" />
+    <ClInclude Include="inc\jsoncpp\reader.h" />
+    <ClInclude Include="inc\jsoncpp\value.h" />
+    <ClInclude Include="inc\jsoncpp\version.h" />
+    <ClInclude Include="inc\jsoncpp\writer.h" />
     <ClInclude Include="inc\Puncher.h" />
     <ClInclude Include="inc\SocketUtil.h" />
     <ClInclude Include="inc\st_common.h" />
+    <ClInclude Include="src\jsoncpp\json_tool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ConnectManager.cpp" />
+    <ClCompile Include="src\jsoncpp\json_reader.cpp" />
+    <ClCompile Include="src\jsoncpp\json_value.cpp" />
+    <ClCompile Include="src\jsoncpp\json_writer.cpp" />
     <ClCompile Include="src\Puncher.cpp" />
     <ClCompile Include="src\SocketUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\jsoncpp\json_valueiterator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

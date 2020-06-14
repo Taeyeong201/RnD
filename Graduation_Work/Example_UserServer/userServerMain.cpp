@@ -72,11 +72,19 @@ int main() {
 		"\"tel\": \"010-222-3333\"\n"
 		"}";
 
-	ST::Puncher STPuncher("219.248.240.15", 3001);
+	ST::Puncher STPuncher("192.168.0.28", 3001);
 	//STPuncher.sendServer(str1);
 	STPuncher.start();
 	STPuncher.sendDataQueuing(str1);
-	std::cout << "recv \n" << STPuncher.recvServer() << std::endl;
+	std::string test = STPuncher.responseServerRawData();
+	std::cout << "============ recv ============\n" << test << std::endl;
+	std::cout << "==============================\n" << std::endl;
+	STPuncher.responseHttpParseData(test);
+	std::cout << STPuncher.getParseData("id") << std::endl;
+	STPuncher.stop();
+
+
+
 	std::shared_ptr<ST::ConnectManager> tcpSocket(new ST::ConnectManager);
 	SOCKET clientSocketfd = -1;
 
@@ -104,7 +112,6 @@ int main() {
 
 		goto EXIT;
 	}
-	STPuncher.stop();
 
 	std::cout << "Listening........" << std::endl;
 

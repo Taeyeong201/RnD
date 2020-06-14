@@ -100,7 +100,7 @@ int ST::Puncher::getHeaderLength(char* content)
 }
 
 
-std::string ST::Puncher::recvServer()
+std::string ST::Puncher::responseServerRawData()
 {
 	std::string data;
 	int flag = 0;
@@ -126,6 +126,50 @@ std::string ST::Puncher::recvServer()
 	return data;
 }
 
+std::vector<std::string> ST::Puncher::responseHttpParseData(const std::string &raw)
+{
+	int lineCount = 0;
+	std::vector<std::string> httpHeader;
+	std::istringstream input(raw);
+	std::string::size_type n;
+	for (std::string line; std::getline(input, line); lineCount++) {
+		//n = line.find("\r");
+		//std::cout << "found: " << line.substr(n) << '\n';
+		//line.erase(line.find("\r"));
+		if (line.size() > line.find("\r"))
+			line.pop_back();
+
+		if (lineCount == 0 && 0 != line.compare("HTTP/1.1 200 OK")) {
+			std::cout << "Response Error" << std::endl;
+		}
+		httpHeader.push_back(line);
+
+	}
+
+
+	JSONCPP_STRING err;
+	std::string json = httpHeader.back();
+	Json::CharReaderBuilder builder;
+	const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+	if (!reader->parse(json.c_str(), json.c_str() + json.length(), &jsonRoot,
+		&err)) {
+		std::cout << "json parsing error" << std::endl;
+	}
+	std::cout << "=====json=====" << std::endl;
+	std::cout << jsonRoot["id"].asString() << std::endl;
+	std::cout << jsonRoot["email"] << std::endl;
+	std::cout << jsonRoot["name"] << std::endl;
+	std::cout << jsonRoot["active"] << std::endl;
+	std::cout << "=====json=====" << std::endl;
+
+	return httpHeader;
+}
+
+std::string ST::Puncher::getParseData(const std::string &id)
+{
+	return  jsonRoot[id].asString();
+}
+
 void ST::Puncher::sendDataQueuing(const std::string data)
 {
 	std::unique_lock<std::mutex> lk(mutex_send);
@@ -144,63 +188,49 @@ void ST::Puncher::recvDataQueuing(const std::string data)
 
 void ST::Puncher::run()
 {
-	std::string data;
+	std::string sendData;
 	long recv_len;
 	long totalBytesRead, headerLen;
 	//char* result;
 
-	if (!connectToServer()) {
-		std::cout << "Connection ERR" << std::endl;
-		std::cout << "Puncher Thread exit" << std::endl;
-		return;
-	}
-
 	while (1) {
+		if (!connectToServer()) {
+			std::cout << "Connection ERR" << std::endl;
+			std::cout << "Puncher Thread exit" << std::endl;
+			return;
+		}
+
 		std::unique_lock<std::mutex> lk(mutex_send);
 		cv_send.wait(lk, [this]() {
 			//std::cout << "wait" << std::endl;
 			return !dataSendQueue.empty();
 		});
 
-		data = std::string(dataSendQueue.front());
+		sendData = std::string(dataSendQueue.front());
 		dataSendQueue.pop();
 		lk.unlock();
 
-		if (strcmp(data.c_str(), "exit") == 0) {
+		if (strcmp(sendData.c_str(), "exit") == 0) {
 			std::cout << "Puncher Thread exit" << std::endl;
+			closesocket(this->conn);
 			return;
 		}
 
-		sendServer(data);
+		sendServer(sendData);
 
 
 		memset(recvBuffer, 0, 4096);
 		recv_len = recv(conn, recvBuffer, 4096, 0);
 		if (recv_len < 0) {
 			std::cout << "Puncher Thread recv error" << std::endl;
+			return;
 		}
 		else {
 			recvBuffer[recv_len] = '\0';
-			recvDataQueuing(std::string(recvBuffer));
 		}
+		recvDataQueuing(std::string(recvBuffer));
 
-
-		//headerLen = getHeaderLength(tmpResult);
-		//long contenLen = totalBytesRead - headerLen;
-		//result = new char[contenLen + 1];
-		//memcpy(result, tmpResult + headerLen, contenLen);
-		//result[contenLen] = 0x0;
-		//char* myTmp;
-
-		//myTmp = new char[headerLen + 1];
-		//strncpy(myTmp, tmpResult, headerLen);
-		//myTmp[headerLen] = NULL;
-		//delete(tmpResult);
-		//*headerOut = myTmp;
-
-		//bytesReturnedOut = contenLen;
-		//closesocket(conn);
-
+		closesocket(this->conn);
 	}
 
 	return;

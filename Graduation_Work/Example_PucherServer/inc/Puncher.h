@@ -2,12 +2,15 @@
 
 #include "st_common.h"
 
+#include "json/json.h"
+
 #include <queue>
 #include <thread>
 #include <functional>
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
+#include <sstream>
 
 namespace ST {
 
@@ -21,7 +24,10 @@ namespace ST {
 		void stop();
 
 		void sendDataQueuing(const std::string data);
-		std::string recvServer();
+		std::string responseServerRawData();
+		std::vector<std::string> responseHttpParseData(const std::string &raw);
+		std::string getParseData(const std::string &id);
+
 
 	private:
 		void run();
@@ -33,6 +39,8 @@ namespace ST {
 		char buffer[4096] = { 0, };
 		char recvBuffer[4096] = { 0, };
 		SOCKET conn = 0;
+
+		Json::Value jsonRoot;
 
 		std::thread punchThread;
 		std::mutex mutex_send;
