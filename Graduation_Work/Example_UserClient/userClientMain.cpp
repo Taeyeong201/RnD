@@ -79,7 +79,7 @@ int main()
 	int ret = 0;
 
 	//std::string ip = "192.168.0.28";
-	std::string ip = STPuncher.getParseData("email");
+	std::string ip = STPuncher.getParseData("ip");
 	uint16_t port = 9000;
 
 	char* sendbuf = (char*)malloc(512);

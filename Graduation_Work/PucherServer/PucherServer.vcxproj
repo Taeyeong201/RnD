@@ -74,12 +74,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)API</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)API</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,8 +110,8 @@
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)inc\*.h" "$(SolutionDir)include\"
 copy /y "$(ProjectDir)inc\json\*.h" "$(SolutionDir)include\json\"
-copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)lib\"
-copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(SolutionDir)lib\"</Command>
+copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)API.dll" "$(SolutionDir)lib\"
+copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)API.lib" "$(SolutionDir)lib\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,8 +149,8 @@ copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(Solut
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)inc\*.h" "$(SolutionDir)include\"
 copy /y "$(ProjectDir)inc\json\*.h" "$(SolutionDir)include\json\"
-copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)lib\"
-copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(SolutionDir)lib\"</Command>
+copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)API.dll" "$(SolutionDir)lib\"
+copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)API.lib" "$(SolutionDir)lib\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

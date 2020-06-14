@@ -54,7 +54,7 @@ namespace ST {
 		std::string ip;
 		unsigned short port;
 
-		std::string filePath = "/customers/2";
+		std::string filePath = "/customers/4";
 		std::string post_str = "GET %s HTTP/1.1\r\n"
 			"Host: %s:%d\r\n"
 			"Content-Type: application/json; charset=utf-8\r\n"
