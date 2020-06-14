@@ -56,6 +56,7 @@ int main()
 	}
 
 
+	std::string str2("");
 	std::string str1 =
 		"{\n"
 		"\"name\": \"Hyun\",\n"
@@ -64,23 +65,21 @@ int main()
 		"\"tel\": \"010-222-3333\"\n"
 		"}";
 
-	ST::Puncher STPuncher("192.168.0.28", 3001);
-	//STPuncher.sendServer(str1);
-	STPuncher.start();
-	STPuncher.sendDataQueuing(str1);
-	std::string test = STPuncher.responseServerRawData();
-	std::cout << "============ recv ============\n" << test << std::endl;
-	std::cout << "==============================\n" << std::endl;
-	STPuncher.responseHttpParseData(test);
-	std::cout << STPuncher.getParseData("id") << std::endl;
-	STPuncher.stop();
 
-	bool bResult = false;
-	int ret = 0;
+	ST::Puncher STPuncher("210.183.46.213", 3001);
+	STPuncher.start();
+	STPuncher.sendDataQueuing(str2);
+	std::string rawText = STPuncher.responseServerRawData();
+	std::cout << rawText << std::endl;
+	STPuncher.responseHttpParseData(rawText);
+	STPuncher.stop();
 
 	//std::string ip = "192.168.0.28";
 	std::string ip = STPuncher.getParseData("ip");
 	uint16_t port = 9000;
+
+	bool bResult = false;
+	int ret = 0;
 
 	char* sendbuf = (char*)malloc(512);
 	char* recvbuf = (char*)malloc(512);
@@ -131,6 +130,7 @@ int main()
 		//}
 		//else
 		std::cout << "All Received!" << std::endl;
+		std::cout << "\n[UserServer][Connected]" << std::endl;
 
 		std::cout << "[RECV message] \n\t" << recvbuf << std::endl;
 	}

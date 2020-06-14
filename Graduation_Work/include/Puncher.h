@@ -33,7 +33,6 @@ namespace ST {
 		void run();
 		bool connectToServer();
 		void sendServer(const std::string &data);
-		int getHeaderLength(char* content);
 		void recvDataQueuing(const std::string data);
 
 		char buffer[4096] = { 0, };
