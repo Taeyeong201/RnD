@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Server: nginx/1.13.9
+Date: Sat, 17 Mar 2018 04:46:35 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 136
+Connection: keep-alive
+X-Checksum: 2970207055
+
+{"body": {"motor_speed": "1", "_id": "5a98ff20eb21d23504ea61ab", "speed": "1000"}, "found": "okay", "result": "okay", "sequence": "593"}
