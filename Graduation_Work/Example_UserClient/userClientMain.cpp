@@ -55,10 +55,31 @@ int main()
 		break;
 	}
 
+
+	std::string str1 =
+		"{\n"
+		"\"name\": \"Hyun\",\n"
+		"\"age\": \"24\",\n"
+		"\"addr\": \"JeJu\",\n"
+		"\"tel\": \"010-222-3333\"\n"
+		"}";
+
+	ST::Puncher STPuncher("192.168.0.28", 3001);
+	//STPuncher.sendServer(str1);
+	STPuncher.start();
+	STPuncher.sendDataQueuing(str1);
+	std::string test = STPuncher.responseServerRawData();
+	std::cout << "============ recv ============\n" << test << std::endl;
+	std::cout << "==============================\n" << std::endl;
+	STPuncher.responseHttpParseData(test);
+	std::cout << STPuncher.getParseData("id") << std::endl;
+	STPuncher.stop();
+
 	bool bResult = false;
 	int ret = 0;
 
-	std::string ip = "172.30.1.50";
+	//std::string ip = "192.168.0.28";
+	std::string ip = STPuncher.getParseData("email");
 	uint16_t port = 9000;
 
 	char* sendbuf = (char*)malloc(512);
@@ -67,8 +88,6 @@ int main()
 	uint32_t sendlen = _msize(sendbuf);
 	uint32_t recvlen = _msize(recvbuf);
 
-	//ST::Puncher STPuncher;
-	//STPuncher.connectToServer("127.0.0.1", 80);
 
 	std::shared_ptr<ST::ConnectManager> tcpSocket(new ST::ConnectManager);
 	SOCKET clientSocketfd;

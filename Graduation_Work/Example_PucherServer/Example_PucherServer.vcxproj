@@ -107,6 +107,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)inc\*.h" "$(SolutionDir)include\"
+copy /y "$(ProjectDir)inc\json\*.h" "$(SolutionDir)include\json\"
 copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)lib\"
 copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(SolutionDir)lib\"</Command>
     </PostBuildEvent>
@@ -145,6 +146,7 @@ copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(Solut
     </Link>
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)inc\*.h" "$(SolutionDir)include\"
+copy /y "$(ProjectDir)inc\json\*.h" "$(SolutionDir)include\json\"
 copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll" "$(SolutionDir)lib\"
 copy /y "$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).lib" "$(SolutionDir)lib\"</Command>
     </PostBuildEvent>

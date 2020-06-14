@@ -125,6 +125,52 @@ std::string ST::Puncher::responseServerRawData()
 
 	return data;
 }
+DWORD convert_unicode_to_utf8_string(
+	__out std::string& utf8,
+	__in const wchar_t* unicode,
+	__in const size_t unicode_size
+) {
+	DWORD error = 0;
+	do {
+		if ((nullptr == unicode) || (0 == unicode_size)) {
+			error = ERROR_INVALID_PARAMETER;
+			break;
+		}
+		utf8.clear();
+		//
+		// getting required cch.
+		//
+		int required_cch = ::WideCharToMultiByte(
+			CP_UTF8,
+			WC_ERR_INVALID_CHARS,
+			unicode, static_cast<int>(unicode_size),
+			nullptr, 0,
+			nullptr, nullptr
+		);
+		if (0 == required_cch) {
+			error = ::GetLastError();
+			break;
+		}
+		//
+		// allocate.
+		//
+		utf8.resize(required_cch);
+		//
+		// convert.
+		//
+		if (0 == ::WideCharToMultiByte(
+			CP_UTF8,
+			WC_ERR_INVALID_CHARS,
+			unicode, static_cast<int>(unicode_size),
+			const_cast<char*>(utf8.c_str()), static_cast<int>(utf8.size()),
+			nullptr, nullptr
+		)) {
+			error = ::GetLastError();
+			break;
+		}
+	} while (false);
+	return error;
+}
 
 std::vector<std::string> ST::Puncher::responseHttpParseData(const std::string &raw)
 {
@@ -158,7 +204,7 @@ std::vector<std::string> ST::Puncher::responseHttpParseData(const std::string &r
 	std::cout << "=====json=====" << std::endl;
 	std::cout << jsonRoot["id"].asString() << std::endl;
 	std::cout << jsonRoot["email"] << std::endl;
-	std::cout << jsonRoot["name"] << std::endl;
+	std::cout << jsonRoot["name"].asString() << std::endl;
 	std::cout << jsonRoot["active"] << std::endl;
 	std::cout << "=====json=====" << std::endl;
 
