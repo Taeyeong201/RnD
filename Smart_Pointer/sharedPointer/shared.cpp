@@ -10,6 +10,11 @@
 */
 
 int main() {
+	auto imgbuffer(
+		std::make_shared<unsigned char[]>(
+			new unsigned char[4096], [](char* buff) { delete[] buff; }
+			)
+	);
 	std::shared_ptr<int[]> s1 = std::make_shared<int[]>(32);
 	/*
 		내부적으로 역참조 연산자  * 가 오버로딩 되어 있으며, 
