@@ -14,4 +14,7 @@ public:
 
 private:
     Ui::QTWidgetTestClass ui;
+    QVBoxLayout* layout = new QVBoxLayout();
+
+    void resetFrame();
 };

@@ -7,8 +7,19 @@ QTWidgetTest::QTWidgetTest(QWidget *parent)
 
     MyWidget* my = new MyWidget(this);
 
-    auto layout = new QVBoxLayout();
+
+    ui.frame->setLayout(layout);
 
     layout->addWidget(my);
-    ui.frame->setLayout(layout);
+}
+void QTWidgetTest::resetFrame()
+{
+    QLayoutItem* wItem;
+
+    while ((wItem = layout->layout()->takeAt(0)) != 0)
+    {
+        if (wItem->widget())
+            wItem->widget()->setParent(NULL);
+        delete wItem;
+    }
 }
