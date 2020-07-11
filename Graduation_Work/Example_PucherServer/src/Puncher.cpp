@@ -184,23 +184,6 @@ void ST::Puncher::run()
 			recvDataQueuing(std::string(recvBuffer));
 		}
 
-
-		//headerLen = getHeaderLength(tmpResult);
-		//long contenLen = totalBytesRead - headerLen;
-		//result = new char[contenLen + 1];
-		//memcpy(result, tmpResult + headerLen, contenLen);
-		//result[contenLen] = 0x0;
-		//char* myTmp;
-
-		//myTmp = new char[headerLen + 1];
-		//strncpy(myTmp, tmpResult, headerLen);
-		//myTmp[headerLen] = NULL;
-		//delete(tmpResult);
-		//*headerOut = myTmp;
-
-		//bytesReturnedOut = contenLen;
-		//closesocket(conn);
-
 	}
 
 	return;
