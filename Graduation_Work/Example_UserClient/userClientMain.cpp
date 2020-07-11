@@ -55,11 +55,31 @@ int main()
 		break;
 	}
 
+
+	std::string str2("");
+	std::string str1 =
+		"{\n"
+		"\"name\": \"Hyun\",\n"
+		"\"age\": \"24\",\n"
+		"\"addr\": \"JeJu\",\n"
+		"\"tel\": \"010-222-3333\"\n"
+		"}";
+
+
+	ST::Puncher STPuncher("210.183.46.213", 3001);
+	STPuncher.start();
+	STPuncher.sendDataQueuing(str2);
+	std::string rawText = STPuncher.responseServerRawData();
+	std::cout << rawText << std::endl;
+	STPuncher.responseHttpParseData(rawText);
+	STPuncher.stop();
+
+	//std::string ip = "192.168.0.28";
+	std::string ip = STPuncher.getParseData("ip");
+	uint16_t port = 9000;
+
 	bool bResult = false;
 	int ret = 0;
-
-	std::string ip = "172.30.1.50";
-	uint16_t port = 9000;
 
 	char* sendbuf = (char*)malloc(512);
 	char* recvbuf = (char*)malloc(512);
@@ -67,8 +87,6 @@ int main()
 	uint32_t sendlen = _msize(sendbuf);
 	uint32_t recvlen = _msize(recvbuf);
 
-	//ST::Puncher STPuncher;
-	//STPuncher.connectToServer("127.0.0.1", 80);
 
 	std::shared_ptr<ST::ConnectManager> tcpSocket(new ST::ConnectManager);
 	SOCKET clientSocketfd;
@@ -112,6 +130,7 @@ int main()
 		//}
 		//else
 		std::cout << "All Received!" << std::endl;
+		std::cout << "\n[UserServer][Connected]" << std::endl;
 
 		std::cout << "[RECV message] \n\t" << recvbuf << std::endl;
 	}

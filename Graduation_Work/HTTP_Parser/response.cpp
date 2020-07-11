@@ -20,6 +20,9 @@
 //#include <httpparser/response.h>
 //#include <httpparser/httpresponseparser.h>
 
+#include "json\json.h"
+//#pragma  comment(lib,"jsoncpp\\lib\\jsoncpp.lib")
+
 int main(int, char**)
 {
     bool needmore = true;
@@ -37,25 +40,33 @@ int main(int, char**)
         "X-Powered-By: Express\r\n"
         "Content-Type: application/json; charset=utf-8\r\n"
         "Content-Length: 63\r\n"
-        "ETag: W/""3f - UsEBvOeFDxsdwPNckyzRAeb85PE""\r\n"
+        "ETag: W/\"3f-UsEBvOeFDxsdwPNckyzRAeb85PE\"\r\n"
         "Date: Sat, 13 Jun 2020 20:07:54 GMT\r\n"
         "Connection: keep-alive\r\n"
         "\r\n"
-        "{""id"":1,""email"":""219.248.240.15"",""name"":""STpuncher"",""active"":1}";
+        "{\"id\":1,\"email\":\"219.248.240.15\",\"name\":\"STpuncher\",\"active\":1}";
 
 
     std::vector<std::string> httpHeader;
-    strcpy(buffer, text1);
     std::string strBuffer(text1);
     std::istringstream input(text1);
     std::string::size_type n;
-    for (std::string line; std::getline(input, line);) {
+    int lineCount = 0;
+    for (std::string line; std::getline(input, line); lineCount++) {
         //n = line.find("\r");
         //std::cout << "found: " << line.substr(n) << '\n';
         //line.erase(line.find("\r"));
+
         std::cout << line.find("\r") << std::endl;
-        if(line.size() > line.find("\r"))
+        if (line.size() > line.find("\r"))
             line.pop_back();
+
+        if (lineCount == 0 && 0 != line.compare("HTTP/1.1 200 OK")) {
+            std::cout << "Response Error" << std::endl;
+            return 0;
+        }
+
+
         httpHeader.push_back(line);
 
     }
@@ -63,51 +74,28 @@ int main(int, char**)
         std::cout << test << std::endl;
     }
 
-    //buffer = (char*)malloc(4096);
+    std::string json = httpHeader.back();
 
-    //strcpy(buffer, text1);
+    JSONCPP_STRING err;
+    Json::Value root;
 
-    //int ndata = strlen(text1);
-    //HttpResponse response;
-    //response.code = 0;
+    Json::CharReaderBuilder builder;
+    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    if (!reader->parse(json.c_str(), json.c_str() + json.length(), &root,
+        &err)) {
+        std::cout << "error" << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    //http_roundtripper rt;
-    //http_init(&rt, responseFuncs, &response);
+    std::cout << root["id"].asString() << std::endl;
+    std::cout << root["email"] << std::endl;
+    std::cout << root["name"] << std::endl;
+    std::cout << root["active"] << std::endl;
 
-    //while (needmore && ndata) {
-    //    int read;
-    //    needmore = http_data(&rt, buffer, ndata, &read);
-    //    ndata -= read;
-    //    buffer += read;
-    //}
-    //if (http_iserror(&rt)) {
-    //    fprintf(stderr, "Error parsing data\n");
-    //    http_free(&rt);
+    //Json::Value family = root["family"];
+    //std::cout << family[0].asString() << std::endl;
+    //std::cout << family[1].asString() << std::endl;
+    //std::cout << family[2].asString() << std::endl;
 
-    //    return -1;
-    //}
 
-    //http_free(&rt);
-
-    //printf("Response: %d\n", response.code);
-    //if (!response.body.empty()) {
-    //    printf("%s\n", &response.body[0]);
-    //}
 }
-//
-//    Response response;
-//    HttpResponseParser parser;
-//
-//    HttpResponseParser::ParseResult res = parser.parse(response, text1, text1 + sizeof(text1));
-//
-//    if( res == HttpResponseParser::ParsingCompleted )
-//    {
-//        std::cout << response.inspect() << std::endl;
-//        return EXIT_SUCCESS;
-//    }
-//    else
-//    {
-//        std::cerr << "Parsing failed" << std::endl;
-//        return EXIT_FAILURE;
-//    }
-//}

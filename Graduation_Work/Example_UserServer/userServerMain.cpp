@@ -54,9 +54,7 @@ int main() {
 
 	bool bResult = false;
 	int ret = 0;
-	std::string ip = ST::SocketUtil::GetLocalIPAddress();
-	std::cout << "local ip : " << ip << std::endl;
-	uint16_t port = 9000;
+	//std::cout << "local ip : " << ip << std::endl;
 
 	char* sendbuf = (char*)malloc(512);
 	char* recvbuf = (char*)malloc(512);
@@ -64,19 +62,24 @@ int main() {
 	size_t sendlen = _msize(sendbuf);
 	size_t recvlen = _msize(recvbuf);
 
-	std::string str1 =
+	uint16_t port = 9000;
+	std::string ip = ST::SocketUtil::GetLocalIPAddress();
+	char buffer[2048];
+	char *str1 =
 		"{\n"
-		"\"name\": \"Hyun\",\n"
-		"\"age\": \"24\",\n"
-		"\"addr\": \"JeJu\",\n"
-		"\"tel\": \"010-222-3333\"\n"
+		"\"ip\": \"%s\",\n"
+		"\"project\": \"UserServer\",\n"
+		"\"state\": \"Waiting\",\n"
 		"}";
 
-	ST::Puncher STPuncher("219.248.240.15", 3001);
-	//STPuncher.sendServer(str1);
+	ST::Puncher STPuncher("192.168.0.28", 3001);
 	STPuncher.start();
-	STPuncher.sendDataQueuing(str1);
-	std::cout << "recv \n" << STPuncher.recvServer() << std::endl;
+	sprintf(buffer, str1, ip.c_str());
+	STPuncher.sendDataQueuing(buffer);
+	STPuncher.stop();
+
+
+
 	std::shared_ptr<ST::ConnectManager> tcpSocket(new ST::ConnectManager);
 	SOCKET clientSocketfd = -1;
 
@@ -104,7 +107,6 @@ int main() {
 
 		goto EXIT;
 	}
-	STPuncher.stop();
 
 	std::cout << "Listening........" << std::endl;
 
