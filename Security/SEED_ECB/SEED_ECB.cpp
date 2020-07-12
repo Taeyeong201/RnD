@@ -1,6 +1,6 @@
 #include "SEED_ECB.h"
 
-DWORD SEED_ECB::SS0[256] = {
+unsigned int SEED_ECB::SS0[256] = {
 0x2989a1a8, 0x05858184, 0x16c6d2d4, 0x13c3d3d0, 0x14445054, 0x1d0d111c, 0x2c8ca0ac, 0x25052124,
 0x1d4d515c, 0x03434340, 0x18081018, 0x1e0e121c, 0x11415150, 0x3cccf0fc, 0x0acac2c8, 0x23436360,
 0x28082028, 0x04444044, 0x20002020, 0x1d8d919c, 0x20c0e0e0, 0x22c2e2e0, 0x08c8c0c8, 0x17071314,
@@ -34,7 +34,7 @@ DWORD SEED_ECB::SS0[256] = {
 0x16061214, 0x3a0a3238, 0x18485058, 0x14c4d0d4, 0x22426260, 0x29092128, 0x07070304, 0x33033330,
 0x28c8e0e8, 0x1b0b1318, 0x05050104, 0x39497178, 0x10809090, 0x2a4a6268, 0x2a0a2228, 0x1a8a9298
 };
-DWORD SEED_ECB::SS1[256] = {
+unsigned int SEED_ECB::SS1[256] = {
 0x38380830, 0xe828c8e0, 0x2c2d0d21, 0xa42686a2, 0xcc0fcfc3, 0xdc1eced2, 0xb03383b3, 0xb83888b0,
 0xac2f8fa3, 0x60204060, 0x54154551, 0xc407c7c3, 0x44044440, 0x6c2f4f63, 0x682b4b63, 0x581b4b53,
 0xc003c3c3, 0x60224262, 0x30330333, 0xb43585b1, 0x28290921, 0xa02080a0, 0xe022c2e2, 0xa42787a3,
@@ -68,7 +68,7 @@ DWORD SEED_ECB::SS1[256] = {
 0x34370733, 0xe427c7e3, 0x24240420, 0xa42484a0, 0xc80bcbc3, 0x50134353, 0x080a0a02, 0x84078783,
 0xd819c9d1, 0x4c0c4c40, 0x80038383, 0x8c0f8f83, 0xcc0ecec2, 0x383b0b33, 0x480a4a42, 0xb43787b3
 };
-DWORD SEED_ECB::SS2[256] = {
+unsigned int SEED_ECB::SS2[256] = {
 0xa1a82989, 0x81840585, 0xd2d416c6, 0xd3d013c3, 0x50541444, 0x111c1d0d, 0xa0ac2c8c, 0x21242505,
 0x515c1d4d, 0x43400343, 0x10181808, 0x121c1e0e, 0x51501141, 0xf0fc3ccc, 0xc2c80aca, 0x63602343,
 0x20282808, 0x40440444, 0x20202000, 0x919c1d8d, 0xe0e020c0, 0xe2e022c2, 0xc0c808c8, 0x13141707,
@@ -102,7 +102,7 @@ DWORD SEED_ECB::SS2[256] = {
 0x12141606, 0x32383a0a, 0x50581848, 0xd0d414c4, 0x62602242, 0x21282909, 0x03040707, 0x33303303,
 0xe0e828c8, 0x13181b0b, 0x01040505, 0x71783949, 0x90901080, 0x62682a4a, 0x22282a0a, 0x92981a8a
 };
-DWORD SEED_ECB::SS3[256] = {
+unsigned int SEED_ECB::SS3[256] = {
 0x08303838, 0xc8e0e828, 0x0d212c2d, 0x86a2a426, 0xcfc3cc0f, 0xced2dc1e, 0x83b3b033, 0x88b0b838,
 0x8fa3ac2f, 0x40606020, 0x45515415, 0xc7c3c407, 0x44404404, 0x4f636c2f, 0x4b63682b, 0x4b53581b,
 0xc3c3c003, 0x42626022, 0x03333033, 0x85b1b435, 0x09212829, 0x80a0a020, 0xc2e2e022, 0x87a3a427,
@@ -137,8 +137,8 @@ DWORD SEED_ECB::SS3[256] = {
 0xc9d1d819, 0x4c404c0c, 0x83838003, 0x8f838c0f, 0xcec2cc0e, 0x0b33383b, 0x4a42480a, 0x87b3b437
 };
 
-SEED_ECB::SEED_ECB(BYTE* key, ENC_DEC mode) :
-    pRoundKey(new DWORD[32]),
+SEED_ECB::SEED_ECB(unsigned char* key, ENC_DEC mode) :
+    pRoundKey(new  unsigned int[32]),
     mode(mode)
 {
     SEED_KeySchedKey(key);
@@ -153,22 +153,22 @@ void SEED_ECB::changeMode(ENC_DEC mode)
     this->mode = mode;
 }
 
-int SEED_ECB::SEED_ECB_Process(const BYTE* in, BYTE* &out, int len)
+int SEED_ECB::SEED_ECB_Process(const unsigned char* in, unsigned char* &out, int len)
 {
     unsigned long long offset = 0;
     unsigned long long remainLen = 0;
     unsigned long long size = 0;
-    BYTE temp[16] = { 0, };
+    unsigned char temp[16] = { 0, };
     remainLen = len % 16;
     if (0 != remainLen) {
         size = (unsigned long long)(len / 16) * 16 + 16;
-        out = new BYTE[size];
+        out = new unsigned char[size];
     }
     else {
         size = (unsigned long long)(len / 16) * 16;
-		out = new BYTE[size];
+		out = new unsigned char[size];
     }
-    memset(out, 0, size + 1);
+    memset(out, 0, size);
 
     for (offset = 0; offset < len; offset += 16) {
         memcpy(temp, in + offset, 16);
@@ -178,13 +178,24 @@ int SEED_ECB::SEED_ECB_Process(const BYTE* in, BYTE* &out, int len)
     memset(temp, NULL, 16);
     if (0 != remainLen) {
         offset -= 16;
-        BYTE remainTemp[16] = { 0, };
+        unsigned char remainTemp[16] = { 0, };
         //memcpy(remainTemp, in + offset, remainLen);
         memcpy(temp, in + offset, remainLen);
         SEED_16byte_Process(temp, out + offset);
     }
  
+
     return size;
+}
+
+void SEED_ECB::printRoundKey()
+{
+    unsigned int* rkey = (unsigned int*)pRoundKey.get();
+
+    for (int i = 0; i < 16; i++) {
+        printf("K%2d,0 : %08X\t", i + 1, rkey[2 * i]);
+        printf("K%2d,1 : %08X\n", i + 1, rkey[2 * i + 1]);
+    }
 }
 
 SEED_ECB& SEED_ECB::operator=(SEED_ECB&& a)
@@ -193,16 +204,21 @@ SEED_ECB& SEED_ECB::operator=(SEED_ECB&& a)
     return *this;
 }
 
-void SEED_ECB::SEED_16byte_Process(BYTE* in, BYTE* out)
+void SEED_ECB::SEED_16byte_Process(unsigned char* in, unsigned char* out)
 {
-    DWORD L0, L1, R0, R1;		// Iuput/output values at each rounds
-    DWORD* K = pRoundKey.get();		// Pointer of round keys
+    unsigned int L0, L1, R0, R1;		// Iuput/output values at each rounds
+    unsigned int* K = pRoundKey.get();		// Pointer of round keys
 
 // Set up input values for first round
-    L0 = ((DWORD)in[3] << 24) | ((DWORD)in[2] << 16) | ((DWORD)in[1] << 8) | ((DWORD)in[0]);
-    L1 = ((DWORD)in[7] << 24) | ((DWORD)in[6] << 16) | ((DWORD)in[5] << 8) | ((DWORD)in[4]);
-    R0 = ((DWORD)in[11] << 24) | ((DWORD)in[10] << 16) | ((DWORD)in[9] << 8) | ((DWORD)in[8]);
-    R1 = ((DWORD)in[15] << 24) | ((DWORD)in[14] << 16) | ((DWORD)in[13] << 8) | ((DWORD)in[12]);
+    L0 = 
+        ((unsigned int)in[3] << 24) | ((unsigned int)in[2] << 16) | 
+        ((unsigned int)in[1] << 8) | ((unsigned int)in[0]);
+    L1 = ((unsigned int)in[7] << 24) | ((unsigned int)in[6] << 16) | 
+        ((unsigned int)in[5] << 8) | ((unsigned int)in[4]);
+    R0 = ((unsigned int)in[11] << 24) | ((unsigned int)in[10] << 16) | 
+        ((unsigned int)in[9] << 8) | ((unsigned int)in[8]);
+    R1 = ((unsigned int)in[15] << 24) | ((unsigned int)in[14] << 16) | 
+        ((unsigned int)in[13] << 8) | ((unsigned int)in[12]);
 
     // Reorder for big endian 
     // Because SEED use little endian order in default
@@ -257,38 +273,42 @@ void SEED_ECB::SEED_16byte_Process(BYTE* in, BYTE* out)
 #endif
 
     // Copying output values from last round to pbData
-    out[0] = (BYTE)((R0) & 0xFF);
-    out[1] = (BYTE)((R0 >> 8) & 0xFF);
-    out[2] = (BYTE)((R0 >> 16) & 0xFF);
-    out[3] = (BYTE)((R0 >> 24) & 0xFF);
+    out[0] = (unsigned char)((R0) & 0xFF);
+    out[1] = (unsigned char)((R0 >> 8) & 0xFF);
+    out[2] = (unsigned char)((R0 >> 16) & 0xFF);
+    out[3] = (unsigned char)((R0 >> 24) & 0xFF);
 
-    out[4] = (BYTE)((R1) & 0xFF);
-    out[5] = (BYTE)((R1 >> 8) & 0xFF);
-    out[6] = (BYTE)((R1 >> 16) & 0xFF);
-    out[7] = (BYTE)((R1 >> 24) & 0xFF);
+    out[4] = (unsigned char)((R1) & 0xFF);
+    out[5] = (unsigned char)((R1 >> 8) & 0xFF);
+    out[6] = (unsigned char)((R1 >> 16) & 0xFF);
+    out[7] = (unsigned char)((R1 >> 24) & 0xFF);
 
-    out[8] = (BYTE)((L0) & 0xFF);
-    out[9] = (BYTE)((L0 >> 8) & 0xFF);
-    out[10] = (BYTE)((L0 >> 16) & 0xFF);
-    out[11] = (BYTE)((L0 >> 24) & 0xFF);
+    out[8] = (unsigned char)((L0) & 0xFF);
+    out[9] = (unsigned char)((L0 >> 8) & 0xFF);
+    out[10] = (unsigned char)((L0 >> 16) & 0xFF);
+    out[11] = (unsigned char)((L0 >> 24) & 0xFF);
 
-    out[12] = (BYTE)((L1) & 0xFF);
-    out[13] = (BYTE)((L1 >> 8) & 0xFF);
-    out[14] = (BYTE)((L1 >> 16) & 0xFF);
-    out[15] = (BYTE)((L1 >> 24) & 0xFF);
+    out[12] = (unsigned char)((L1) & 0xFF);
+    out[13] = (unsigned char)((L1 >> 8) & 0xFF);
+    out[14] = (unsigned char)((L1 >> 16) & 0xFF);
+    out[15] = (unsigned char)((L1 >> 24) & 0xFF);
 }
 
-void SEED_ECB::SEED_KeySchedKey(BYTE* pbUserKey)
+void SEED_ECB::SEED_KeySchedKey(unsigned char* pbUserKey)
 {
-    DWORD A, B, C, D;				// Iuput/output values at each rounds
-    DWORD T0, T1;					// Temporary variable
-    DWORD* K = pRoundKey.get();			// Pointer of round keys
+    unsigned int A, B, C, D;				// Iuput/output values at each rounds
+    unsigned int T0, T1;					// Temporary variable
+    unsigned int* K = pRoundKey.get();			// Pointer of round keys
 
 // Set up input values for Key Schedule	
-    A = ((DWORD)pbUserKey[3] << 24) | ((DWORD)pbUserKey[2] << 16) | ((DWORD)pbUserKey[1] << 8) | ((DWORD)pbUserKey[0]);
-    B = ((DWORD)pbUserKey[7] << 24) | ((DWORD)pbUserKey[6] << 16) | ((DWORD)pbUserKey[5] << 8) | ((DWORD)pbUserKey[4]);
-    C = ((DWORD)pbUserKey[11] << 24) | ((DWORD)pbUserKey[10] << 16) | ((DWORD)pbUserKey[9] << 8) | ((DWORD)pbUserKey[8]);
-    D = ((DWORD)pbUserKey[15] << 24) | ((DWORD)pbUserKey[14] << 16) | ((DWORD)pbUserKey[13] << 8) | ((DWORD)pbUserKey[12]);
+    A = ((unsigned int)pbUserKey[3] << 24) | ((unsigned int)pbUserKey[2] << 16) |
+        ((unsigned int)pbUserKey[1] << 8) | ((unsigned int)pbUserKey[0]);
+    B = ((unsigned int)pbUserKey[7] << 24) | ((unsigned int)pbUserKey[6] << 16) |
+        ((unsigned int)pbUserKey[5] << 8) | ((unsigned int)pbUserKey[4]);
+    C = ((unsigned int)pbUserKey[11] << 24) | ((unsigned int)pbUserKey[10] << 16) |
+        ((unsigned int)pbUserKey[9] << 8) | ((unsigned int)pbUserKey[8]);
+    D = ((unsigned int)pbUserKey[15] << 24) | ((unsigned int)pbUserKey[14] << 16) |
+        ((unsigned int)pbUserKey[13] << 8) | ((unsigned int)pbUserKey[12]);
 
     // Reorder for big endian 
 #ifndef BIG_ENDIAN

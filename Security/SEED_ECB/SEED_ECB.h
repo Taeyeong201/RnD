@@ -44,18 +44,6 @@
 #define KC14    0xde6e678dUL
 #define KC15    0xbcdccf1bUL
 
-#ifndef TYPE_DEFINITION
-#define TYPE_DEFINITION
-#if defined(__alpha)
-typedef unsigned int        DWORD;		// unsigned 4-byte data type
-typedef unsigned short      WORD;		// unsigned 2-byte data type
-#else
-typedef unsigned long int   DWORD;		// unsigned 4-byte data type
-typedef unsigned short int  WORD;		// unsigned 2-byte data type
-#endif
-typedef unsigned char       BYTE;		// unsigned 1-byte data type
-#endif
-
 #include <iostream>
 #include <memory>
 
@@ -72,7 +60,7 @@ public:
 	@param key : 16byte 암호키
 	@param mode : SEED_ECB::ENC_DEC
 	*/
-	SEED_ECB(BYTE* key, ENC_DEC mode = ENC_DEC::ENCRYPT);
+	SEED_ECB(unsigned char* key, ENC_DEC mode = ENC_DEC::ENCRYPT);
 	~SEED_ECB();
 
 	/**
@@ -89,77 +77,78 @@ public:
 	@param len : Input Buffer의 size
 	@return Output Buffer의 Size
 	*/
-	int SEED_ECB_Process(const BYTE* in, BYTE*& out, int len);
+	int SEED_ECB_Process(const unsigned char* in, unsigned char*& out, int len);
 
+	void printRoundKey();
 
 	SEED_ECB& operator=(SEED_ECB&& a);
 private:
-	std::unique_ptr<DWORD> pRoundKey;
+	std::unique_ptr<unsigned int> pRoundKey;
 	ENC_DEC mode;
 
-	template <typename T> BYTE GetB0(T t);
-	template <typename T> BYTE GetB1(T t);
-	template <typename T> BYTE GetB2(T t);
-	template <typename T> BYTE GetB3(T t);
+	template <typename T> unsigned char GetB0(T t);
+	template <typename T> unsigned char GetB1(T t);
+	template <typename T> unsigned char GetB2(T t);
+	template <typename T> unsigned char GetB3(T t);
 
 	template <typename T> 
-	void SEED_KeySched(T L0, T L1, T R0, T R1, T* K);
+	void SEED_KeySched(T &L0, T &L1, T &R0, T &R1, T* K);
 
 	template <typename T>
-	void RoundKeyUpdate0(T *K, T A, T B, T C, T D, T KC);
+	void RoundKeyUpdate0(T *K, T& A, T& B, T& C, T& D, const unsigned long long KC);
 	template <typename T>
-	void RoundKeyUpdate1(T* K, T A, T B, T C, T D, T KC);
+	void RoundKeyUpdate1(T *K, T& A, T& B, T& C, T& D, const unsigned long long KC);
 
-	static DWORD SS0[256];
-	static DWORD SS1[256];
-	static DWORD SS2[256];
-	static DWORD SS3[256];
+	static unsigned int SS0[256];
+	static unsigned int SS1[256];
+	static unsigned int SS2[256];
+	static unsigned int SS3[256];
 
 	/**
 	@brief 16 Byte 암복호화
 	@param in : input Buffer (16 Byte)
 	@param out : output Buffer (16 Byte)
 	*/
-	void SEED_16byte_Process(BYTE* in, BYTE* out);
+	void SEED_16byte_Process(unsigned char* in, unsigned char* out);
 
 	/**
 	@brief Private Key로 Round Key 생성
 	@param pdwRoundKey : Round Key
 	@param pbUserKey : Private Key
 	*/
-	void SEED_KeySchedKey(BYTE* pbUserKey);
+	void SEED_KeySchedKey(unsigned char* pbUserKey);
 
 };
 
 template<typename T>
-inline BYTE SEED_ECB::GetB0(T t)
+inline unsigned char  SEED_ECB::GetB0(T t)
 {
-	return (BYTE)(t);
+	return (unsigned char)(t);
 }
 
 template<typename T>
-inline BYTE SEED_ECB::GetB1(T t)
+inline unsigned char  SEED_ECB::GetB1(T t)
 {
-	return (BYTE)((t) >> 8);
+	return (unsigned char)((t) >> 8);
 }
 
 template<typename T>
-inline BYTE SEED_ECB::GetB2(T t)
+inline unsigned char  SEED_ECB::GetB2(T t)
 {
-	return (BYTE)((t) >> 16);
+	return (unsigned char)((t) >> 16);
 }
 
 template<typename T>
-inline BYTE SEED_ECB::GetB3(T t)
+inline unsigned char  SEED_ECB::GetB3(T t)
 {
-	return (BYTE)((t) >> 24);
+	return (unsigned char)((t) >> 24);
 }
 
 template<typename T>
-inline void SEED_ECB::SEED_KeySched(T L0, T L1, T R0, T R1, T* K)
+inline void SEED_ECB::SEED_KeySched(T &L0, T &L1, T& R0, T& R1, T* K)
 {
-	DWORD T0 = R0 ^ (K)[0];
-	DWORD T1 = R1 ^ (K)[1];
+	T T0 = R0 ^ (K)[0];
+	T T1 = R1 ^ (K)[1];
 	T1 ^= T0;
 	T1 = SS0[GetB0(T1)] ^ SS1[GetB1(T1)] ^ SS2[GetB2(T1)] ^ SS3[GetB3(T1)];
 	T0 = (T0 + T1) & 0xffffffff;
@@ -171,7 +160,7 @@ inline void SEED_ECB::SEED_KeySched(T L0, T L1, T R0, T R1, T* K)
 }
 
 template<typename T>
-inline void SEED_ECB::RoundKeyUpdate0(T* K, T A, T B, T C, T D, T KC)
+inline void SEED_ECB::RoundKeyUpdate0(T *K, T &A, T &B, T &C, T &D, const unsigned long long KC)
 {
 	T T0 = A + C - KC;
 	T T1 = B + KC - D;
@@ -183,7 +172,7 @@ inline void SEED_ECB::RoundKeyUpdate0(T* K, T A, T B, T C, T D, T KC)
 }
 
 template<typename T>
-inline void SEED_ECB::RoundKeyUpdate1(T* K, T A, T B, T C, T D, T KC)
+inline void SEED_ECB::RoundKeyUpdate1(T *K, T& A, T& B, T& C, T& D, const unsigned long long KC)
 {
 	T T0 = A + C - KC;
 	T T1 = B + KC - D;
