@@ -153,7 +153,7 @@ void SEED_ECB::changeMode(ENC_DEC mode)
     this->mode = mode;
 }
 
-int SEED_ECB::SEED_ECB_Process(const unsigned char* in, unsigned char* &out, int len)
+size_t SEED_ECB::SEED_ECB_Process(const unsigned char* in, unsigned char* &out, size_t len)
 {
     unsigned long long offset = 0;
     unsigned long long remainLen = 0;
@@ -184,6 +184,72 @@ int SEED_ECB::SEED_ECB_Process(const unsigned char* in, unsigned char* &out, int
         SEED_16byte_Process(temp, out + offset);
     }
  
+    return size;
+}
+
+size_t SEED_ECB::SEED_ECB_32byte_Process(const unsigned char* in, unsigned char*& out,const size_t len)
+{
+    size_t inOffset, outOffset, nCurrentCount, outSize, buffer_length;
+    inOffset = outOffset = nCurrentCount = buffer_length = outSize = 0;
+
+    size_t nPlainTextPadding = SeedBlockSize - (len) % SeedBlockSize;
+    size_t size = len + nPlainTextPadding;
+	unsigned char* pPlainPaddingBuf = new unsigned char[size];
+    out = new unsigned char[size];
+
+    unsigned char temp[16] = { 0, };
+
+    memset(out, 0, size);
+    memcpy_s(pPlainPaddingBuf, size, in, len);
+
+    if (ENC_DEC::ENCRYPT == mode) {
+		while (nCurrentCount <= len) {
+            SEED_16byte_Process(pPlainPaddingBuf + inOffset, out + outOffset);
+            nCurrentCount += SeedBlockSize;
+            inOffset += SeedBlockSize;
+            outOffset += SeedBlockSize;
+        }
+        outSize = nCurrentCount - SeedBlockSize;
+        buffer_length = len - outSize;
+
+        memcpy_s(temp, SeedBlockSize, in + inOffset, buffer_length);
+
+        size_t nPaddngLeng = SeedBlockSize - buffer_length;
+        //for (int i = buffer_length; i < SeedBlockSize; i++) {
+        //    Common.set_byte_for_int(pInfo.ecb_buffer, i, (byte)nPaddngLeng, ENDIAN);
+        //}
+        SEED_16byte_Process(temp, out+outSize);
+
+    }
+    else {
+
+    }
+
+    //remainLen = len % 32;
+    //if (0 != remainLen) {
+    //    size = (unsigned long long)(len / 32) * 32 + 32;
+    //    out = new unsigned char[size];
+    //}
+    //else {
+    //    size = (unsigned long long)(len / 32) * 32;
+    //    out = new unsigned char[size];
+    //}
+    //memset(out, 0, size);
+
+    //for (offset = 0; offset < len; offset += 32) {
+    //    memcpy(temp, in + offset, 32);
+    //    SEED_16byte_Process(temp, out + offset);
+    //}
+
+    //memset(temp, NULL, 32);
+    //if (0 != remainLen) {
+    //    offset -= 32;
+    //    unsigned char remainTemp[32] = { 0, };
+    //    //memcpy(remainTemp, in + offset, remainLen);
+    //    memcpy(temp, in + offset, remainLen);
+    //    SEED_16byte_Process(temp, out + offset);
+    //}
+
 
     return size;
 }
@@ -198,11 +264,11 @@ void SEED_ECB::printRoundKey()
     }
 }
 
-SEED_ECB& SEED_ECB::operator=(SEED_ECB&& a)
-{
-    pRoundKey = std::move(a.pRoundKey);
-    return *this;
-}
+//SEED_ECB& SEED_ECB::operator=(SEED_ECB&& a)
+//{
+//    pRoundKey = std::move(a.pRoundKey);
+//    return *this;
+//}
 
 void SEED_ECB::SEED_16byte_Process(unsigned char* in, unsigned char* out)
 {

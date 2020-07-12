@@ -77,11 +77,21 @@ public:
 	@param len : Input Buffer의 size
 	@return Output Buffer의 Size
 	*/
-	int SEED_ECB_Process(const unsigned char* in, unsigned char*& out, int len);
+	size_t SEED_ECB_Process(const unsigned char* in, unsigned char*& out, size_t len);
+
+	/**
+	@brief mode 상태에 따라 암복호화 진행
+	@param in : Input Buffer ( Source )
+	@param out : Output Buffer ( 메모리 할당하지 않은 변수로 전달 )
+	메모리가 할당된 변수이면 메모리 누수 발생!
+	@param len : Input Buffer의 size
+	@return Output Buffer의 Size
+	*/
+	size_t SEED_ECB_32byte_Process(const unsigned char* in, unsigned char*& out, size_t len);
 
 	void printRoundKey();
 
-	SEED_ECB& operator=(SEED_ECB&& a);
+	//SEED_ECB& operator=(SEED_ECB&& a);
 private:
 	std::unique_ptr<unsigned int> pRoundKey;
 	ENC_DEC mode;
@@ -162,23 +172,23 @@ inline void SEED_ECB::SEED_KeySched(T &L0, T &L1, T& R0, T& R1, T* K)
 template<typename T>
 inline void SEED_ECB::RoundKeyUpdate0(T *K, T &A, T &B, T &C, T &D, const unsigned long long KC)
 {
-	T T0 = A + C - KC;
-	T T1 = B + KC - D;
+	unsigned long long T0 = A + C - KC;
+	unsigned long long T1 = B + KC - D;
 	(K)[0] = SS0[GetB0(T0)] ^ SS1[GetB1(T0)] ^ SS2[GetB2(T0)] ^ SS3[GetB3(T0)];   
 	(K)[1] = SS0[GetB0(T1)] ^ SS1[GetB1(T1)] ^ SS2[GetB2(T1)] ^ SS3[GetB3(T1)];   
 	T0 = A;                                     
 	A = (A >> 8) ^ (B << 24);
-	B = (B >> 8) ^ (T0 << 24);
+	B = (B >> 8) ^ (T)(T0 << 24);
 }
 
 template<typename T>
 inline void SEED_ECB::RoundKeyUpdate1(T *K, T& A, T& B, T& C, T& D, const unsigned long long KC)
 {
-	T T0 = A + C - KC;
-	T T1 = B + KC - D;
+	unsigned long long T0 = A + C - KC;
+	unsigned long long T1 = B + KC - D;
 	(K)[0] = SS0[GetB0(T0)] ^ SS1[GetB1(T0)] ^ SS2[GetB2(T0)] ^ SS3[GetB3(T0)];
 	(K)[1] = SS0[GetB0(T1)] ^ SS1[GetB1(T1)] ^ SS2[GetB2(T1)] ^ SS3[GetB3(T1)];
 	T0 = C;
 	C = (C << 8) ^ (D >> 24);
-	D = (D << 8) ^ (T0 >> 24);
+	D = (D << 8) ^ (T)(T0 >> 24);
 }
