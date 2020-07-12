@@ -39,7 +39,7 @@ int main() {
 
 	// Decryption
 	std::cout << "\n\nDecryption...." << std::endl;
-	test.changeMode(SEED_ECB::ENC_DEC::KISA_DECRYPT);
+	test.changeMode(SEED_ECB::ENC_DEC::DECRYPT);
 	test.SEED_ECB_Process(cipherText, decrypText, size);
 
 	// Print decrypted data(plaintext)
@@ -75,7 +75,7 @@ int main() {
 	//	printf("%c", cipherText2[i]);
 
 	std::cout << "\n\nDecryption...." << std::endl;
-	test.changeMode(SEED_ECB::ENC_DEC::KISA_DECRYPT);
+	test.changeMode(SEED_ECB::ENC_DEC::DECRYPT);
 	int size3 = test.SEED_ECB_Process(cipherText2, decrypText2, size2);
 
 	std::cout << "PlainText  : " << std::string((char*)decrypText2) << std::endl;;

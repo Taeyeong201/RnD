@@ -63,15 +63,32 @@ class SEED_ECB
 {
 public:
 	enum class ENC_DEC {
-		KISA_DECRYPT = 0,
-		KISA_ENCRYPT
+		DECRYPT = 0,
+		ENCRYPT
 	};
 
-	SEED_ECB(BYTE* key, ENC_DEC mode = ENC_DEC::KISA_ENCRYPT);
+	/**
+	@brief SEED_ECB 생성자
+	@param key : 16byte 암호키
+	@param mode : SEED_ECB::ENC_DEC
+	*/
+	SEED_ECB(BYTE* key, ENC_DEC mode = ENC_DEC::ENCRYPT);
 	~SEED_ECB();
 
+	/**
+	@brief MODE 변경 ( ENCRYPT or DECRYPT )
+	@param mode : SEED_ECB::ENC_DEC
+	*/
 	void changeMode(ENC_DEC mode);
 
+	/**
+	@brief mode 상태에 따라 암복호화 진행
+	@param in : Input Buffer ( Source )
+	@param out : Output Buffer ( 메모리 할당하지 않은 변수로 전달 )
+	메모리가 할당된 변수이면 메모리 누수 발생!
+	@param len : Input Buffer의 size
+	@return Output Buffer의 Size
+	*/
 	int SEED_ECB_Process(const BYTE* in, BYTE*& out, int len);
 
 

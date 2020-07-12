@@ -213,7 +213,7 @@ void SEED_ECB::SEED_16byte_Process(BYTE* in, BYTE* out)
     R1 = EndianChange(R1);
 #endif
 
-    if (ENC_DEC::KISA_ENCRYPT == mode) {
+    if (ENC_DEC::ENCRYPT == mode) {
         SEED_KeySched(L0, L1, R0, R1, K); 	// Round 1
         SEED_KeySched(R0, R1, L0, L1, K + 2); 	// Round 2
         SEED_KeySched(L0, L1, R0, R1, K + 4); 	// Round 3
