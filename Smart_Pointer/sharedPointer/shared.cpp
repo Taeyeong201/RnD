@@ -1,7 +1,14 @@
 #include <iostream>
 #include <memory>
 
-
+template <typename T>
+struct Array_Deleter
+{
+	void operator()(T* p)
+	{
+		delete[] p;
+	}
+};
 /*
 	공유 포인터는 스마트 포인터의 한 종류로 
 	유니크 포인터와 달리 소유권을 다른 공유 포인터와 공유할 수 있으며, 
@@ -10,19 +17,14 @@
 */
 
 int main() {
-	auto imgbuffer(
-		std::make_shared<unsigned char[]>(
-			new unsigned char[4096], [](char* buff) { delete[] buff; }
-			)
-	);
-	std::shared_ptr<int[]> s1 = std::make_shared<int[]>(32);
+	auto imgbuffer(std::make_shared<unsigned char>(4096));
+	std::shared_ptr<int> s1 = std::make_shared<int>(32);
 	/*
 		내부적으로 역참조 연산자  * 가 오버로딩 되어 있으며, 
 		멤버에 접근하기 위한  ->  연산자 또한 오버로딩되어 있다.  
 		shared_ptr 자체의 멤버 함수를 호출하기 위해선 평소처럼  . 를 사용한다.
 	*/
 	//s1->func() 
-	s1[0] = 1;
 
 
 

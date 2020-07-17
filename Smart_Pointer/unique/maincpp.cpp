@@ -23,13 +23,17 @@ int main() {
 	*/
 	const unsigned char* f = u_ptr.get(); // 그나마 안전, 하지만 여전히 delete 가능
 	//원시 포인터 해체 및 재설정
-	u_ptr.reset(new unsigned char[1024]);
-	//u_ptr.reset(); //해제
+	//u_ptr.reset(new unsigned char[1024]);
+	u_ptr.reset(); //해제
 
+	auto test = u_ptr[1];
 
 	auto u_ptr2 = std::make_unique<int>();
 	*u_ptr2 = 25;
 
+
+	//소유권 이전
+	//std::unique_ptr<int> unique_Int = std::move(u_ptr2);
 	/*
 		유니크 포인터가 관리해주던 메모리를 
 		C스타일의 포인터로 받기 때문에 책임지고 사용 종료 시 해제해주어야 한다.
