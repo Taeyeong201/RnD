@@ -70,11 +70,11 @@ int main() {
 		pushT.push_back(std::thread(pushThread, &test, &m, &cv));
 
 	std::thread popT = std::thread(popThread, &test, &m, &cv, &isRun);
-	std::thread sig = std::thread(stopSignal, &isRun);
 
 	for (int i = 0; i < 5; i++)
 		pushT[i].join();
 
+	std::thread sig = std::thread(stopSignal, &isRun);
 
 	sig.join();
 	cv.notify_one();
