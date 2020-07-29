@@ -2,6 +2,7 @@
 #include <iostream>
 #include <mutex>
 #include <chrono>
+#include <condition_variable>
 #include <string>
 
 template<typename ... Args>
@@ -17,7 +18,7 @@ std::string format_string(const std::string& format, Args ... args)
 void pushThread(std::queue<std::string>* testQueue, std::mutex*m, std::condition_variable* cv) {
 	std::thread::id this_id = std::this_thread::get_id();
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 30; i++) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		std::string text = format_string("thread(%d) : %d", this_id, i);
 		m->lock();
@@ -26,7 +27,6 @@ void pushThread(std::queue<std::string>* testQueue, std::mutex*m, std::condition
 		m->unlock();
 		cv->notify_one();
 	}
-
 }
 void popThread(std::queue<std::string>* testQueue, std::mutex* m, std::condition_variable* cv, bool *isRun) {
 	std::thread::id this_id = std::this_thread::get_id();
@@ -49,7 +49,7 @@ void popThread(std::queue<std::string>* testQueue, std::mutex* m, std::condition
 
 		lk.unlock();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 void stopSignal(bool* isRun) {
@@ -71,12 +71,18 @@ int main() {
 
 	std::thread popT = std::thread(popThread, &test, &m, &cv, &isRun);
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++) {
 		pushT[i].join();
+		std::cerr << "thread(" << i << ") end" << std::endl;
+	}
 
-	std::thread sig = std::thread(stopSignal, &isRun);
+	//std::thread sig = std::thread(stopSignal, &isRun);
+	//sig.join();
 
-	sig.join();
+	//std::cout << "enter : " << std::endl;
+	getchar();
+	isRun = false;
+
 	cv.notify_one();
 	popT.join();
 
