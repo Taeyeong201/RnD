@@ -10,6 +10,10 @@
 			"path" : "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeDetermineSystem.cmake"
 		},
 		{
+			"isExternal" : true,
+			"path" : "D:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+		},
+		{
 			"isCMake" : true,
 			"isExternal" : true,
 			"path" : "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeSystem.cmake.in"
@@ -17,6 +21,10 @@
 		{
 			"isGenerated" : true,
 			"path" : "out/build/x64-Debug(기본값)/CMakeFiles/3.17.20032601-MSVC_2/CMakeSystem.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "D:/vcpkg/scripts/buildsystems/vcpkg.cmake"
 		},
 		{
 			"isCMake" : true,

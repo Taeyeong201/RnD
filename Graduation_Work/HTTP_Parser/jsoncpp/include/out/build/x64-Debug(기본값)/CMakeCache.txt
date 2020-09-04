@@ -18,12 +18,11 @@
 // syntax should this version of CMake try to support.
 CMAKE_BACKWARDS_COMPATIBILITY:STRING=2.4
 
-//Choose the type of build, options are: None Debug Release RelWithDebInfo
-// MinSizeRel ...
+//No help, variable specified on the command line.
 CMAKE_BUILD_TYPE:STRING=Debug
 
 //No help, variable specified on the command line.
-CMAKE_CXX_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.26.28801/bin/HostX64/x64/cl.exe
+CMAKE_CXX_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=/DWIN32 /D_WINDOWS /W3 /GR /EHsc
@@ -44,7 +43,7 @@ CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=/MD /Zi /O2 /Ob1 /DNDEBUG
 CMAKE_CXX_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
 
 //No help, variable specified on the command line.
-CMAKE_C_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.26.28801/bin/HostX64/x64/cl.exe
+CMAKE_C_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=/DWIN32 /D_WINDOWS /W3
@@ -86,7 +85,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 CMAKE_INSTALL_PREFIX:PATH=D:/VDI/AtWork/Taeyeong201/RnD/Graduation_Work/HTTP_Parser/jsoncpp/include/out/install/x64-Debug(기본값)
 
 //Path to a program.
-CMAKE_LINKER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x64/link.exe
+CMAKE_LINKER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/link.exe
 
 //make program
 CMAKE_MAKE_PROGRAM:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe
@@ -188,6 +187,9 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=
 // during RELWITHDEBINFO builds.
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
+//The CMake toolchain file
+CMAKE_TOOLCHAIN_FILE:FILEPATH=D:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
 // during the make.  This is useful for debugging only. With Visual
@@ -205,6 +207,23 @@ Project_BINARY_DIR:STATIC=D:/VDI/AtWork/Taeyeong201/RnD/Graduation_Work/HTTP_Par
 
 //Value Computed by CMake
 Project_SOURCE_DIR:STATIC=D:/VDI/AtWork/Taeyeong201/RnD/Graduation_Work/HTTP_Parser/jsoncpp/include
+
+//Automatically copy dependencies into the output directory for
+// executables.
+VCPKG_APPLOCAL_DEPS:BOOL=ON
+
+//Vcpkg target triplet (ex. x86-windows)
+VCPKG_TARGET_TRIPLET:STRING=x64-windows
+
+//Enables messages from the VCPKG toolchain for debugging purposes.
+VCPKG_VERBOSE:BOOL=OFF
+
+//Path to a program.
+_VCPKG_CL:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe
+
+//The directory which contains the installed libraries for each
+// triplet
+_VCPKG_INSTALLED_DIR:PATH=D:/vcpkg/installed
 
 
 ########################
@@ -337,6 +356,14 @@ CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_STATIC_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_TOOLCHAIN_FILE
+CMAKE_TOOLCHAIN_FILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: VCPKG_VERBOSE
+VCPKG_VERBOSE-ADVANCED:INTERNAL=1
+//_vcpkg_get_directory_name_of_file_above: _VCPKG_MANIFEST_DIR
+_VCPKG_MANIFEST_DIR:INTERNAL=_VCPKG_MANIFEST_DIR-NOTFOUND
+//_vcpkg_get_directory_name_of_file_above: _VCPKG_ROOT_DIR
+_VCPKG_ROOT_DIR:INTERNAL=D:/vcpkg
 
