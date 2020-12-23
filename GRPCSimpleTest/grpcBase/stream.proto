@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package simpleStream;
+
+service SimpleStream {
+	rpc Upload(UploadRequest) returns(UploadResponse) {}
+	rpc Download(DownloadRequest) returns(stream DownloadResponse) {}
+}
+
+message StreamHeader {
+    string type = 1;
+    uint64 size = 2;
+}
+
+message StreamPayload {
+    bytes data = 1;
+}
+
+message UploadRequest {
+    string type = 1;
+    uint64 size = 2;
+}
+
+message UploadResponse {
+    oneof contents {
+        StreamHeader header = 1;
+        StreamPayload payload  = 2;
+    }
+}
+
+message DownloadRequest {
+    string type = 1;
+    uint64 size = 2;
+}
+
+message DownloadResponse {
+    oneof contents {
+        StreamHeader header = 1;
+        StreamPayload  payload  = 2;
+    }
+}

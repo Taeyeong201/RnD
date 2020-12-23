@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package simple;
+
+service EchoService {
+	rpc Echo(Message) returns(EchoMessage) {}
+}
+
+message Message {
+    string text = 1;
+    uint64 size = 2;
+}
+
+message EchoMessage {
+	string echo = 1;
+	uint64 size = 2;
+}
