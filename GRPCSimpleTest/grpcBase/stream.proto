@@ -3,8 +3,8 @@ syntax = "proto3";
 package simpleStream;
 
 service SimpleStream {
-	rpc Upload(UploadRequest) returns(UploadResponse) {}
-	rpc Download(DownloadRequest) returns(stream DownloadResponse) {}
+	rpc ServerUpload(stream SendRequest) returns(SendResponse) {}
+	rpc ClientDownload(RecvRequest) returns(stream RecvResponse) {}
 }
 
 message StreamHeader {
@@ -16,26 +16,26 @@ message StreamPayload {
     bytes data = 1;
 }
 
-message UploadRequest {
-    string type = 1;
-    uint64 size = 2;
-}
-
-message UploadResponse {
+message SendRequest {
     oneof contents {
         StreamHeader header = 1;
         StreamPayload payload  = 2;
     }
 }
 
-message DownloadRequest {
+message SendResponse {
     string type = 1;
     uint64 size = 2;
 }
 
-message DownloadResponse {
-    oneof contents {
+message RecvRequest {
+    string type = 1;
+    uint64 size = 2;
+}
+
+message RecvResponse {
+	oneof contents {
         StreamHeader header = 1;
-        StreamPayload  payload  = 2;
+        StreamPayload payload  = 2;
     }
 }

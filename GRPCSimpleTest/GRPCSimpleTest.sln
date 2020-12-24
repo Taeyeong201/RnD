@@ -13,11 +13,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsyncServer", "AsyncServer\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsyncClient", "AsyncClient\AsyncClient.vcxproj", "{7286F45E-4F65-405F-908B-06BFD435A6E4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyncStreamServer", "SyncStreamServer\SyncStreamServer.vcxproj", "{7F3F865F-E1C5-4EC6-9357-090ED1624B66}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyncStreamClient", "SyncStreamClient\SyncStreamClient.vcxproj", "{14BAEECA-41E0-438A-95D7-07AAEE80A137}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		grpcBase\gRPC_base.vcxitems*{14baeeca-41e0-438a-95d7-07aaee80a137}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{47fd9504-1732-48a8-8d51-715b1e7c3e7b}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{4bf0a631-7cde-4aea-bb07-c6a74d0df6ab}*SharedItemsImports = 9
 		grpcBase\gRPC_base.vcxitems*{7286f45e-4f65-405f-908b-06bfd435a6e4}*SharedItemsImports = 4
+		grpcBase\gRPC_base.vcxitems*{7f3f865f-e1c5-4ec6-9357-090ed1624b66}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{8749c4ea-149d-4ce8-8c10-6cb553cecbfe}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{9af64994-a60c-43f3-ac92-23eb0f73a87d}*SharedItemsImports = 4
 	EndGlobalSection
@@ -52,6 +58,18 @@ Global
 		{7286F45E-4F65-405F-908B-06BFD435A6E4}.Release|x64.ActiveCfg = Release|x64
 		{7286F45E-4F65-405F-908B-06BFD435A6E4}.Release|x64.Build.0 = Release|x64
 		{7286F45E-4F65-405F-908B-06BFD435A6E4}.Release|x86.ActiveCfg = Release|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Debug|x64.ActiveCfg = Debug|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Debug|x64.Build.0 = Debug|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Debug|x86.ActiveCfg = Debug|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Release|x64.ActiveCfg = Release|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Release|x64.Build.0 = Release|x64
+		{7F3F865F-E1C5-4EC6-9357-090ED1624B66}.Release|x86.ActiveCfg = Release|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Debug|x64.ActiveCfg = Debug|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Debug|x64.Build.0 = Debug|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Debug|x86.ActiveCfg = Debug|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Release|x64.ActiveCfg = Release|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Release|x64.Build.0 = Release|x64
+		{14BAEECA-41E0-438A-95D7-07AAEE80A137}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

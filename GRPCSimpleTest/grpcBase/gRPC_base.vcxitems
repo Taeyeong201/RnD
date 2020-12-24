@@ -16,9 +16,13 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)echo.grpc.pb.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)echo.pb.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)stream.grpc.pb.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)stream.pb.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)echo.grpc.pb.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)echo.pb.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)stream.grpc.pb.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)stream.pb.h" />
   </ItemGroup>
 </Project>
