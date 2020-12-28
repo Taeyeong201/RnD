@@ -82,15 +82,14 @@ public:
 		std::cout << "type : " << request->type() << std::endl;
 		std::cout << "size : " << request->size() << std::endl;
 
-		std::ifstream sendStream(
+		std::ifstream fileReader(
 			severSendFilePath.data(),
 			std::ios::binary | std::ios::ate
 		);
-		if (sendStream.is_open()) {
+		if (fileReader.is_open()) {
 			size_t fileSize = 0;
-			size_t readFileSize = 0;
-			auto endpos = sendStream.tellg();
-			sendStream.seekg(0);
+			auto endpos = fileReader.tellg();
+			fileReader.seekg(0);
 			if (endpos > 0) {
 				fileSize = static_cast<decltype(fileSize)>(endpos);
 			}
@@ -100,7 +99,9 @@ public:
 			else {
 				fileSize = size;
 			}
-			
+
+			remainSize_ = fileSize;
+
 			RecvResponse rep;
 			rep.mutable_header()->set_type(request->type());
 			rep.mutable_header()->set_size(fileSize);
@@ -108,32 +109,34 @@ public:
 			rep.Clear();
 
 			auto buffer = rep.mutable_payload()->mutable_data();
+			bufferSize_ = 4096;
 			buffer->resize(bufferSize_);
-			size_t last = fileSize % bufferSize_;
 			auto& buf = *buffer;
 
-			while (!sendStream.eof()) {
-				if ((readFileSize + buffer->size()) < fileSize) {
-					sendStream.read(&buf[0], buffer->size());
-					readFileSize += buffer->size();
-					writer->Write(rep);
+			double percent = 0;
+
+			while (!fileReader.eof()) {
+				bool finish = false;
+
+				if (bufferSize_ >= remainSize_) {
+					bufferSize_ = remainSize_;
+					buffer->resize(bufferSize_);
+					finish = true;
 				}
-				else if (readFileSize == fileSize) {
-					sendStream.read(&buf[0], 1);
-					break;
-				}
-				else {
-					buffer->resize(last);
-					sendStream.read(&buf[0], last);
-					readFileSize += last;
-					writer->Write(rep);
-				}
-				double percent = (double)readFileSize / (double)fileSize;
+
+				fileReader.read(&buf[0], bufferSize_);
+				remainSize_ -= bufferSize_;
+
+				writer->Write(rep);
+
+				percent = (double)(fileSize - remainSize_) / (double)fileSize;
 				printf("\r upload...%.2f%%", percent * 100.0);
+
+				if (finish) break;
 			}
 			std::cout << std::endl;
 
-			sendStream.close();
+			fileReader.close();
 		}
 		else {
 			StreamPayload payload;
@@ -146,7 +149,10 @@ public:
 	}
 
 private:
-	int bufferSize_ = 4096;
+	int bufferSize_ = 0;
+
+	size_t remainSize_ = 0;
+
 	std::string severSendFilePath;
 	std::string severRecvFilePath;
 };

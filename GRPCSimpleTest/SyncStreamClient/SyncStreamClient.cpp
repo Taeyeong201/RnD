@@ -46,35 +46,42 @@ public:
 				fileSize = static_cast<decltype(fileSize)>(endpos);
 			}
 
+			remainSize_ = fileSize;
+			fulSize = fileSize;
+
 			SendRequest req;
 			req.mutable_header()->set_type("textFile");
 			req.mutable_header()->set_size(fileSize);
 			writer->Write(req);
 			req.Clear();
 
+
+
 			auto buffer = req.mutable_payload()->mutable_data();
+			bufferSize_ = 4096;
 			buffer->resize(bufferSize_);
-			size_t last = fileSize % buffer->size();
 			auto& buf = *buffer;
 
+			double percent = 0;
+
 			while (!fileReader.eof()) {
-				if ((readFileSize + buffer->size()) < fileSize) {
-					fileReader.read(&buf[0], buffer->size());
-					readFileSize += buffer->size();
-					writer->Write(req);
+				bool finish = false;
+
+				if (bufferSize_ >= remainSize_) {
+					bufferSize_ = remainSize_;
+					buffer->resize(bufferSize_);
+					finish = true;
 				}
-				else if (readFileSize == fileSize) {
-					fileReader.read(&buf[0], 1);
-					break;
-				}
-				else {
-					buffer->resize(last);
-					fileReader.read(&buf[0], last);
-					readFileSize += last;
-					writer->Write(req);
-				}
-				double percent = (double)readFileSize / (double)fileSize;
+
+				fileReader.read(&buf[0], bufferSize_);
+				remainSize_ -= bufferSize_;
+
+				writer->Write(req);
+
+				percent = (double)(fulSize - remainSize_) / (double)fulSize;
 				printf("\r upload...%.2f%%", percent * 100.0);
+
+				if (finish) break;
 			}
 			std::cout << std::endl;
 			fileReader.close();
@@ -141,6 +148,7 @@ private:
 	std::unique_ptr<SimpleStream::Stub> stub_;
 
 	size_t fulSize = 0;
+	size_t remainSize_ = 0;
 };
 
 int main() {
