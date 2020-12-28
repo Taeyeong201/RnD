@@ -29,19 +29,19 @@ public:
 	void SendStreamData() {
 		SendResponse reply;
 		ClientContext context;
-		std::ifstream sendStream(
+		std::ifstream fileReader(
 			sendFilePath.data(),
 			std::ios::binary | std::ios::ate
 		);
 
-		if (sendStream.is_open()) {
+		if (fileReader.is_open()) {
 			std::unique_ptr<ClientWriter<SendRequest>> writer(
 				stub_->ServerUpload(&context, &reply)
 			);
 			size_t readFileSize = 0;
 			size_t fileSize = 0;
-			auto endpos = sendStream.tellg();
-			sendStream.seekg(0);
+			auto endpos = fileReader.tellg();
+			fileReader.seekg(0);
 			if (endpos > 0) {
 				fileSize = static_cast<decltype(fileSize)>(endpos);
 			}
@@ -57,19 +57,19 @@ public:
 			size_t last = fileSize % buffer->size();
 			auto& buf = *buffer;
 
-			while (!sendStream.eof()) {
+			while (!fileReader.eof()) {
 				if ((readFileSize + buffer->size()) < fileSize) {
-					sendStream.read(&buf[0], buffer->size());
+					fileReader.read(&buf[0], buffer->size());
 					readFileSize += buffer->size();
 					writer->Write(req);
 				}
 				else if (readFileSize == fileSize) {
-					sendStream.read(&buf[0], 1);
+					fileReader.read(&buf[0], 1);
 					break;
 				}
 				else {
 					buffer->resize(last);
-					sendStream.read(&buf[0], last);
+					fileReader.read(&buf[0], last);
 					readFileSize += last;
 					writer->Write(req);
 				}
@@ -77,7 +77,7 @@ public:
 				printf("\r upload...%.2f%%", percent * 100.0);
 			}
 			std::cout << std::endl;
-			sendStream.close();
+			fileReader.close();
 
 			writer->WritesDone();
 			Status status = writer->Finish();
@@ -139,6 +139,8 @@ private:
 	std::string sendFilePath;
 	std::string recvFilePath;
 	std::unique_ptr<SimpleStream::Stub> stub_;
+
+	size_t fulSize = 0;
 };
 
 int main() {

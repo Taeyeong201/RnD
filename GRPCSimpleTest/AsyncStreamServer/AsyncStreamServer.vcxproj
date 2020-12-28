@@ -82,6 +82,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AsyncStreamServer.cpp" />
+    <ClCompile Include="serverHandle.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="serverHandle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

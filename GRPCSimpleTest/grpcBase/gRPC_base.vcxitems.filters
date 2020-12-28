@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)echo.grpc.pb.cc">
+      <Filter>grpc_echo</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)echo.pb.cc">
+      <Filter>grpc_echo</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)stream.grpc.pb.cc">
+      <Filter>grpc_stream</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)stream.pb.cc">
+      <Filter>grpc_stream</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)RequestStatus.cpp">
+      <Filter>handle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)echo.pb.h">
+      <Filter>grpc_echo</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)echo.grpc.pb.h">
+      <Filter>grpc_echo</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)stream.grpc.pb.h">
+      <Filter>grpc_stream</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)stream.pb.h">
+      <Filter>grpc_stream</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)HandlerInterface.h">
+      <Filter>handle</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)HandlerManager.hpp">
+      <Filter>handle</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)RequestStatus.h">
+      <Filter>handle</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="grpc_echo">
+      <UniqueIdentifier>{1f6cd098-2e89-41ca-bafa-0589a62640aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grpc_stream">
+      <UniqueIdentifier>{4e7e9c1d-5b16-4fa5-a4cb-e9a95ea7f4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="handle">
+      <UniqueIdentifier>{9284584d-c1f1-4130-a057-b8d78edafe5b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

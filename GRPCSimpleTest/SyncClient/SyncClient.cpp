@@ -62,12 +62,24 @@ int main() {
     */
     EchoClient client(grpc::CreateChannel(
         "127.0.0.1:50051", grpc::InsecureChannelCredentials()));
+    EchoClient client2(grpc::CreateChannel(
+        "127.0.0.1:50051", grpc::InsecureChannelCredentials()));
 
     while (true) {
         std::string text;
         std::cout << "text : ";
         std::cin >> text;
         EchoMessage res = client.echo(text);
+        EchoMessage res2 = client2.echo(text);
+        if (!res2.echo().empty()) {
+            std::cout << "recv2 : " << res2.echo()
+                << '(' << res2.size() << ','
+                << res2.ByteSizeLong() << ')' << std::endl;
+        }
+        else {
+            system("PAUSE");
+            break;
+        }
         if (!res.echo().empty()) {
             std::cout << "recv : " << res.echo() 
                 << '(' << res.size() << ',' 
