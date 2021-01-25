@@ -21,16 +21,22 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsyncStreamServer", "AsyncS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsyncStreamClient", "AsyncStreamClient\AsyncStreamClient.vcxproj", "{DF0B8AA8-D02A-41CB-91F0-B40506E1F559}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLS_Client", "TLS_Client\TLS_Client.vcxproj", "{BCDAC5AD-990D-49EB-A8C2-43191C99B335}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TLS_Server", "TLS_Server\TLS_Server.vcxproj", "{4F881B5F-8C36-432F-8B40-84DCB48E43D5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		grpcBase\gRPC_base.vcxitems*{14baeeca-41e0-438a-95d7-07aaee80a137}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{47fd9504-1732-48a8-8d51-715b1e7c3e7b}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{4bf0a631-7cde-4aea-bb07-c6a74d0df6ab}*SharedItemsImports = 9
+		grpcBase\gRPC_base.vcxitems*{4f881b5f-8c36-432f-8b40-84dcb48e43d5}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{7286f45e-4f65-405f-908b-06bfd435a6e4}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{7f3f865f-e1c5-4ec6-9357-090ed1624b66}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{8749c4ea-149d-4ce8-8c10-6cb553cecbfe}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{9af64994-a60c-43f3-ac92-23eb0f73a87d}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{9d95c177-f77e-459b-a2e6-6a8f2c3798cc}*SharedItemsImports = 4
+		grpcBase\gRPC_base.vcxitems*{bcdac5ad-990d-49eb-a8c2-43191c99b335}*SharedItemsImports = 4
 		grpcBase\gRPC_base.vcxitems*{df0b8aa8-d02a-41cb-91f0-b40506e1f559}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +94,18 @@ Global
 		{DF0B8AA8-D02A-41CB-91F0-B40506E1F559}.Release|x64.ActiveCfg = Release|x64
 		{DF0B8AA8-D02A-41CB-91F0-B40506E1F559}.Release|x64.Build.0 = Release|x64
 		{DF0B8AA8-D02A-41CB-91F0-B40506E1F559}.Release|x86.ActiveCfg = Release|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Debug|x64.ActiveCfg = Debug|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Debug|x64.Build.0 = Debug|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Debug|x86.ActiveCfg = Debug|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Release|x64.ActiveCfg = Release|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Release|x64.Build.0 = Release|x64
+		{BCDAC5AD-990D-49EB-A8C2-43191C99B335}.Release|x86.ActiveCfg = Release|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Debug|x64.ActiveCfg = Debug|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Debug|x64.Build.0 = Debug|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Debug|x86.ActiveCfg = Debug|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Release|x64.ActiveCfg = Release|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Release|x64.Build.0 = Release|x64
+		{4F881B5F-8C36-432F-8B40-84DCB48E43D5}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

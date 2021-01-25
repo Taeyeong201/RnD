@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package LiveStream;
+
+service AudioStream {
+	rpc AudioStreamReqeust(AudioFormat)
+		returns(stream DataStream) {}
+}
+
+message AudioFormat {
+    string codec = 1;
+    uint64 bitrate = 2;
+    uint64 sampleRate = 3;
+}
+
+message StreamHeader {
+	uint64 code = 1;
+	string status = 2;
+}
+
+message StreamPayload {
+    bytes data = 1;
+}
+
+message DataStream {
+	oneof contents {
+        StreamHeader header = 1;
+        StreamPayload payload  = 2;
+    }
+}
