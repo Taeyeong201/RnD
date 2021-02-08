@@ -10,79 +10,90 @@
 /*Nice little macro to save a few lines.*/
 void die(const char* reason)
 {
-    fprintf(stderr, reason);
-    fflush(stderr);
-    exit(1);
+	fprintf(stderr, reason);
+	fflush(stderr);
+	exit(1);
 }
 
 /*Elliptic Curve Diffie-Hellman function*/
 int EC_DH(unsigned char** secret, EC_KEY* key, const EC_POINT* pPub)
 {
-    int secretLen;
+	int secretLen;
 
-    secretLen = EC_GROUP_get_degree(EC_KEY_get0_group(key));
-    secretLen = (secretLen + 7) / 8;
+	secretLen = EC_GROUP_get_degree(EC_KEY_get0_group(key));
+	secretLen = (secretLen + 7) / 8;
 
-    printf("key len : %d\n", secretLen);
+	printf("key len : %d\n", secretLen);
 
-    *secret = (unsigned char*) malloc(secretLen);
-    if (!(*secret))
-        die("Failed to allocate memory for secret.\n");
-    secretLen = ECDH_compute_key(*secret, secretLen, pPub, key, NULL);
+	*secret = (unsigned char*)malloc(secretLen);
+	if (!(*secret))
+		die("Failed to allocate memory for secret.\n");
+	secretLen = ECDH_compute_key(*secret, secretLen, pPub, key, NULL);
 
-    printf("secret key len : %d\n", secretLen);
+	printf("secret key len : %d\n", secretLen);
 
-    return secretLen;
+	return secretLen;
 }
 
 /*Key generation function for throwaway keys.*/
 EC_KEY* gen_key(void)
 {
-    EC_KEY* key;
+	EC_KEY* key;
 
-    key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-    if (key == NULL)
-        die("Failed to create lKey object.\n");
+	key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	if (key == NULL)
+		die("Failed to create lKey object.\n");
 
-    if (!EC_KEY_generate_key(key))
-        die("Failed to generate EC key.\n");
+	if (!EC_KEY_generate_key(key))
+		die("Failed to generate EC key.\n");
 
-    return key;
+	return key;
 }
 
 int main(int argc, char** argv)
 {
-    EC_KEY* lKey, * pKey;
-    int lSecretLen, pSecretLen;
-    unsigned char* lSecret, * pSecret;
+	EC_KEY* lKey, * pKey, * tmpkey = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	EC_KEY* tmpkey2 = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	int lSecretLen, pSecretLen;
+	unsigned char* lSecret, * pSecret;
 
-    lKey = gen_key();
-    pKey = gen_key();
+	unsigned char* tmp = NULL;
+	unsigned char* tmp2 = NULL;
+	lKey = gen_key();
+	int size = EC_KEY_key2buf(lKey, EC_KEY_get_conv_form(lKey), &tmp, nullptr);
+	int size1 = EC_KEY_oct2key(tmpkey, tmp, size, nullptr);
 
-    lSecretLen = EC_DH(&lSecret, lKey, EC_KEY_get0_public_key(pKey));
-    pSecretLen = EC_DH(&pSecret, pKey, EC_KEY_get0_public_key(lKey));
-    if (lSecretLen != pSecretLen)
-        die("SecretLen mismatch.\n");
-
-    if (memcmp(lSecret, pSecret, lSecretLen))
-        die("Secrets don't match.\n");
-
-    printf("lSecret : ");
-    for (int i = 0; i < lSecretLen; i++)
-        printf(" %c", lSecret[i]);
-
-    printf("\n");
-    printf("pSecret : ");
-    for (int i = 0; i < pSecretLen; i++)
-        printf(" %c", pSecret[i]);
-    printf("\n");
+	pKey = gen_key();
+	size = EC_KEY_key2buf(pKey, EC_KEY_get_conv_form(pKey), &tmp2, nullptr);
+	size1 = EC_KEY_oct2key(tmpkey2, tmp2, size, nullptr);
 
 
-    free(lSecret);
-    free(pSecret);
-    EC_KEY_free(lKey);
-    EC_KEY_free(pKey);
-    CRYPTO_cleanup_all_ex_data();
+	lSecretLen = EC_DH(&lSecret, lKey, EC_KEY_get0_public_key(tmpkey2));
+	pSecretLen = EC_DH(&pSecret, pKey, EC_KEY_get0_public_key(tmpkey));
+	if (lSecretLen != pSecretLen)
+		die("SecretLen mismatch.\n");
 
-    return 0;
+	if (memcmp(lSecret, pSecret, lSecretLen))
+		die("Secrets don't match.\n");
+
+	printf("lSecret : ");
+	for (int i = 0; i < lSecretLen; i++)
+		printf(" %c", lSecret[i]);
+
+	printf("\n");
+	printf("pSecret : ");
+	for (int i = 0; i < pSecretLen; i++)
+		printf(" %c", pSecret[i]);
+	printf("\n");
+
+	free(lSecret);
+	free(pSecret);
+	OPENSSL_free(tmp);
+	OPENSSL_free(tmp2);
+
+	EC_KEY_free(lKey);
+	EC_KEY_free(pKey);
+	CRYPTO_cleanup_all_ex_data();
+
+	return 0;
 }
