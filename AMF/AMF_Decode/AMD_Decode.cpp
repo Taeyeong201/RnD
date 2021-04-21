@@ -58,14 +58,17 @@ bool CDecode::Decode(unsigned char* data, int iLen, FILE* f)
 
 	dTemp = pictureBuffer.Detach();
 
+	// Input
 	re = decoder->SubmitInput(dTemp);
 	if (re == AMF_OK)
 	{
+		// Output
 		re = decoder->QueryOutput(&dTemp);
 		if (re == AMF_OK)
 		{
 			if (dTemp)
 			{
+				// convert CPU memory
 				re = dTemp->Convert(amf::AMF_MEMORY_HOST); // convert to system memory
 
 				amf::AMFSurfacePtr surface(dTemp); // query for surface interface
@@ -150,6 +153,9 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	CDecode dlg;
+	dlg.Init(1920, 1080);
+
 	SOCKET sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in addr = { 0 };
 	addr.sin_family = AF_INET;
@@ -161,8 +167,6 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	CDecode dlg;
-	dlg.Init(1920, 1080);
 	bufInfo info = { 0, };
 	int totalRecv = 0;
 	while (recv(sockfd, info.cSize, sizeof(bufInfo), 0) > 0) {
