@@ -69,13 +69,13 @@ int main() {
 	for (int i = 0; i < 5; i++)
 		pushT.push_back(std::thread(pushThread, &test, &m, &cv));
 
-	std::thread popT = std::thread(popThread, &test, &m, &cv, &isRun);
-
 	for (int i = 0; i < 5; i++) {
 		pushT[i].join();
 		std::cerr << "thread(" << i << ") end" << std::endl;
 	}
+	auto t = getchar();
 
+	std::thread popT = std::thread(popThread, &test, &m, &cv, &isRun);
 	//std::thread sig = std::thread(stopSignal, &isRun);
 	//sig.join();
 
