@@ -141,6 +141,10 @@
   <ItemGroup>
     <ClCompile Include="shared.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="blockingconcurrentqueue.h" />
+    <ClInclude Include="concurrentqueue.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
