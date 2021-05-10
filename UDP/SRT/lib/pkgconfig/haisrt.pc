@@ -1,0 +1,12 @@
+prefix=C:/Program Files (x86)/SRT
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: srt
+Description: SRT library set
+Version: 1.4.3
+Libs: -L${libdir} -lsrt   
+Libs.private:  ws2_32.lib optimized D:/vcpkg/installed/x64-windows/lib/pthreadVC3.lib debug D:/vcpkg/installed/x64-windows/debug/lib/pthreadVC3d.lib
+Cflags: -I${includedir} -I${includedir}/srt
+Requires.private: openssl libcrypto

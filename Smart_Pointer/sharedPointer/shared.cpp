@@ -30,7 +30,7 @@ struct Array_Deleter
 //};
 
 struct Packet {
-	std::shared_ptr<int> data;
+	std::shared_ptr<uint8_t> data;
 };
 
 BlockingConcurrentQueue<std::shared_ptr<int>> q;
@@ -62,7 +62,7 @@ void test3(std::shared_ptr<int>& data) {
 	}
 	return;
 }
-void test4(std::shared_ptr<int>& data) {
+void test4(std::shared_ptr<uint8_t>& data) {
 	Packet test;
 	q_1.try_dequeue(test);
 	data = std::move(test.data);
@@ -81,6 +81,8 @@ int main() {
 	std::shared_ptr<int> s1 = std::make_shared<int>(32);
 	std::shared_ptr<int> s2 = std::make_shared<int>(32);
 	std::shared_ptr<int> s3;
+	//배열할당하기
+	std::shared_ptr<int> s2 = std::make_shared<int>(32)
 	/*
 		내부적으로 역참조 연산자  * 가 오버로딩 되어 있으며,
 		멤버에 접근하기 위한  ->  연산자 또한 오버로딩되어 있다.
@@ -98,10 +100,10 @@ int main() {
 	}
 
 	Packet packet;
-	packet.data = std::make_shared<int>(32);
+	packet.data = std::make_shared<uint8_t>(4096);
 
 	q_1.enqueue(std::move(packet));
-	std::shared_ptr<int> s4;
+	std::shared_ptr<uint8_t> s4;
 
 	test4(s4);
 	std::cout << "s4 use count " << s4.use_count() << std::endl;
