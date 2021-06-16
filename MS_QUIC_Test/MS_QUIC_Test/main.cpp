@@ -45,22 +45,22 @@ const QUIC_REGISTRATION_CONFIG RegConfig = { "quicsample", QUIC_EXECUTION_PROFIL
 //
 // The protocol name used in the Application Layer Protocol Negotiation (ALPN).
 //
-const QUIC_BUFFER Alpn = { sizeof("h2") - 1, (uint8_t*)"h2" };
+const QUIC_BUFFER Alpn = { sizeof("test") - 1, (uint8_t*)"test" };
 
 //
 // The UDP port used by the server side of the protocol.
 //
-const uint16_t UdpPort = 4567;
+const uint16_t UdpPort = 12154;
 
 //
 // The default idle timeout period (1 second) used for the protocol.
 //
-const uint64_t IdleTimeoutMs = 1000;
+const uint64_t IdleTimeoutMs = 100000;
 
 //
 // The length of buffer sent over the streams in the protocol.
 //
-const uint32_t SendBufferLength = 100000;
+const uint32_t SendBufferLength = 5000;
 
 //
 // The QUIC API/function table returned from MsQuicOpen. It contains all the
@@ -555,6 +555,8 @@ ClientStreamCallback(
 		// Data was received from the peer on the stream.
 		//
 		printf("[strm][%p] Data received\n", Stream);
+		printf("%s\n", Event->RECEIVE.Buffers->Buffer);
+
 		break;
 	case QUIC_STREAM_EVENT_PEER_SEND_ABORTED:
 		//
@@ -633,7 +635,7 @@ ClientSend(
 	// the buffer. This indicates this is the last buffer on the stream and the
 	// the stream is shut down (in the send direction) immediately after.
 	//
-	if (QUIC_FAILED(Status = MsQuic->StreamSend(Stream, SendBuffer, 1, QUIC_SEND_FLAG_FIN, SendBuffer))) {
+	if (QUIC_FAILED(Status = MsQuic->StreamSend(Stream, SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBuffer))) {
 		printf("StreamSend failed, 0x%x!\n", Status);
 		free(SendBufferRaw);
 		goto Error;
@@ -642,6 +644,7 @@ ClientSend(
 Error:
 
 	if (QUIC_FAILED(Status)) {
+		printf("shutdown\n");
 		MsQuic->ConnectionShutdown(Connection, QUIC_CONNECTION_SHUTDOWN_FLAG_NONE, 0);
 	}
 }
@@ -754,7 +757,7 @@ bool ClientLoadConfiguration(_In_ int argc, _In_reads_(argc) _Null_terminated_ c
 		(Cert = GetValue(argc, argv, "cert_file")) != nullptr &&
 		(KeyFile = GetValue(argc, argv, "key_file")) != nullptr) 
 	{
-		Config.CredConfig.Flags |= QUIC_CREDENTIAL_FLAG_REQUIRE_CLIENT_AUTHENTICATION;
+		//Config.CredConfig.Flags |= QUIC_CREDENTIAL_FLAG_REQUIRE_CLIENT_AUTHENTICATION;
 
 		Config.CertFile.CertificateFile = (char*)Cert;
 		//Config.CertFile.PrivateKeyFile = (char*)KeyFile;
