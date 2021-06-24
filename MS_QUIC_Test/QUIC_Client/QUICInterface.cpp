@@ -82,7 +82,7 @@ void QUICInterface::StatusPrint(QUIC_STATUS status)
 		std::cout << "A stream failed to start because the peer doesn't allow any more to be open at this time." << std::endl;
 		break;
 	default:
-		printf("unknown : 0x%x", status);
+		printf("unknown : 0x%x\n", status);
 		break;
 	}
 }
@@ -160,7 +160,7 @@ void ClientSend(_In_ MsQuicStream* Stream) {
 	//
 	// Allocates and builds the buffer to send over the stream.
 	//
-	auto SendBufferRawTest = malloc(sizeof(QUIC_BUFFER) + 10);
+	auto SendBufferRawTest = malloc(sizeof(QUIC_BUFFER) + 12);
 	if (SendBufferRawTest == nullptr) {
 		printf("SendBuffer allocation failed!\n");
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
@@ -169,8 +169,35 @@ void ClientSend(_In_ MsQuicStream* Stream) {
 
 	auto SendBufferTest = (QUIC_BUFFER*)SendBufferRawTest;
 	SendBufferTest->Buffer = (uint8_t*)SendBufferRawTest + sizeof(QUIC_BUFFER);
-	SendBufferTest->Length = 10;
+	SendBufferTest->Length = 12;
 
+	memset(SendBufferTest->Buffer, 0, 12);
+
+	auto testbuf = (QUIC_BUFFER*)SendBufferTest->Buffer;
+	testbuf->Buffer = SendBufferTest->Buffer + sizeof(uint32_t);
+	testbuf->Length = 8;
+	memcpy(testbuf->Buffer, "11111111", strlen("11111111"));
+
+	auto SendBufferRaw2 = malloc(sizeof(QUIC_BUFFER) + 10000);
+	if (SendBufferRaw2 == nullptr) {
+		printf("SendBuffer allocation failed!\n");
+		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+		return;
+	}
+
+	auto SendBuffer2 = (QUIC_BUFFER*)SendBufferRaw2;
+	SendBuffer2->Buffer = (uint8_t*)SendBufferRaw2 + sizeof(QUIC_BUFFER);
+	SendBuffer2->Length = 10000;
+
+	memset(SendBuffer2->Buffer, 0, 10000);
+
+	auto testbuf3 = (QUIC_BUFFER*)SendBuffer2->Buffer;
+	testbuf3->Buffer = SendBuffer2->Buffer + sizeof(uint32_t);
+	testbuf3->Length = 9996;
+
+	memcpy(testbuf3->Buffer,
+		"DataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataData",
+		strlen("DataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataData"));
 
 	auto SendBufferRaw = malloc(sizeof(QUIC_BUFFER) + 100);
 	if (SendBufferRaw == nullptr) {
@@ -183,21 +210,30 @@ void ClientSend(_In_ MsQuicStream* Stream) {
 	SendBuffer->Buffer = (uint8_t*)SendBufferRaw + sizeof(QUIC_BUFFER);
 	SendBuffer->Length = 100;
 
-	printf("[strm][%p] Sending data...\n", Stream);
 	memset(SendBuffer->Buffer, 0, 100);
-	memcpy(SendBuffer->Buffer,
+
+	auto testbuf2 = (QUIC_BUFFER*)SendBuffer->Buffer;
+	testbuf2->Buffer = SendBuffer->Buffer + sizeof(uint32_t);
+	testbuf2->Length = 96;
+
+	memcpy(testbuf2->Buffer,
 		"DataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataData",
 		strlen("DataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataDataData"));
 
-
-	memset(SendBufferTest->Buffer, 0, 10);
-	memcpy(SendBufferTest->Buffer, "125468", strlen("154648"));
+	printf("[strm][%p] Sending data...\n", Stream);
 
 	if (QUIC_FAILED(Status = Stream->Send(SendBufferTest, 1, QUIC_SEND_FLAG_NONE))) {
 		printf("StreamSend failed, 0x%x!\n", Status);
-		free(SendBufferRaw);
+		free(SendBufferRawTest);
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 	}
+
+	if (QUIC_FAILED(Status = Stream->Send(SendBuffer2, 1, QUIC_SEND_FLAG_NONE))) {
+		printf("StreamSend failed, 0x%x!\n", Status);
+		free(SendBufferRaw2);
+		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+	}
+
 
 	//
 	// Sends the buffer over the stream. Note the FIN flag is passed along with
@@ -210,6 +246,31 @@ void ClientSend(_In_ MsQuicStream* Stream) {
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 	}
 }
+
+void ClientInitSend(_In_ MsQuicStream* Stream) {
+	QUIC_STATUS Status;
+
+
+	auto packetSize = 24;
+
+	auto SendBufferRaw = malloc((sizeof(QUIC_BUFFER) + packetSize));
+	if (SendBufferRaw == nullptr) {
+		printf("SendBuffer allocation failed!\n");
+		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+	}
+	memset(SendBufferRaw, 0, sizeof(QUIC_BUFFER) + packetSize);
+
+	auto SendBuffer = (QUIC_BUFFER*)SendBufferRaw;
+	SendBuffer->Buffer = (uint8_t*)SendBufferRaw + sizeof(QUIC_BUFFER);
+	SendBuffer->Length = packetSize;
+
+	if (QUIC_FAILED(Status = Stream->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBuffer))) {
+		printf("StreamSend failed, 0x%x!\n", Status);
+		free(SendBufferRaw);
+		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+	}
+}
+
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_STREAM_CALLBACK)
@@ -489,8 +550,8 @@ QUIC_STATUS QUICInterface::ClientConnCallback(
 		ctx->ServerStream =
 			new(std::nothrow) MsQuicStream(*Connection, QUIC_STREAM_OPEN_FLAG_NONE, CleanUpAutoDelete, ClientStreamCallback, Context);
 		ctx->ServerStream->Start(QUIC_STREAM_START_FLAG_NONE);
-
-		ClientSend(ctx->ServerStream);
+		ClientInitSend(ctx->ServerStream);
+		//ClientSend(ctx->ServerStream);
 		break;
 	case QUIC_CONNECTION_EVENT_STREAMS_AVAILABLE:
 		printf("[conn][%p] Streams Available\n", Connection->Handle);
