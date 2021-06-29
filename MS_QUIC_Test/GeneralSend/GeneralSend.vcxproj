@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UDP_Recv1.cpp" />
+    <ClCompile Include="G_Send.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{c46fdf1c-c920-418a-b1e5-a84b4779d531}</ProjectGuid>
-    <RootNamespace>GeneralRecvUDP</RootNamespace>
+    <ProjectGuid>{18d79606-3c81-415a-92b5-3e5abc88ed2b}</ProjectGuid>
+    <RootNamespace>GeneralSendTCP</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

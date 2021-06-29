@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UDP_Send1.cpp">
+    <ClCompile Include="G_Send.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

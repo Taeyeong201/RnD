@@ -95,8 +95,8 @@ bool QuicDataReceiver::getData(DataPacket& data)
 				remainingPacket(payloadBuf + payload->size,  remainPacketSize);
 			}
 		}
-		remainPacket.data.reset();
-		packet.data.reset();
+		//remainPacket.data.reset();
+		//packet.data.reset();
 		return true;
 	}
 	return false;
@@ -131,8 +131,8 @@ void QuicDataReceiver::queueBuffer(uint8_t* buffer, unsigned int size)
 
 	queue_.enqueue(std::move(packet));
 
-	if (queue_.size_approx() > 30)
-		std::cout << "warning recv queue overflow" << std::endl;
+	//if (queue_.size_approx() > 30)
+	//	std::cout << "warning recv queue overflow" << std::endl;
 }
 
 void QuicDataReceiver::shutdownGetData()
