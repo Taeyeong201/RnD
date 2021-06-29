@@ -25,8 +25,21 @@ bool QuicDataReceiver::getData(DataPacket& data)
 
 		if (!packet.data) return false;
 
+		// Packet Size가 Payload Size 보다 작을때
+		if (packet.size < sizeof(DataPayload)) {
+			queue_.wait_dequeue(remainPacket);
+			auto tmp = std::shared_ptr<unsigned char>(
+				new unsigned char[packet.size + remainPacket.size],
+				[](unsigned char* ptr) { delete[]ptr; }
+			);
+			memcpy(tmp.get(), packet.data.get(), packet.size);
+			memcpy(tmp.get() + packet.size, remainPacket.data.get(), remainPacket.size);
+			packet.data.swap(tmp);
+			packet.size += remainPacket.size;
+		}
+
 		auto payload = (DataPayload*)packet.data.get();
-		auto payloadBuf = (uint8_t*)packet.data.get() + sizeof(uint32_t);
+		auto payloadBuf = (uint8_t*)packet.data.get() + sizeof(DataPayload);
 
 		data.size = payload->size;
 		data.data = std::shared_ptr<unsigned char>(
@@ -35,9 +48,9 @@ bool QuicDataReceiver::getData(DataPacket& data)
 		);
 		memset(data.data.get(), 0, payload->size);
 
-		//payload의 uint32_t 크기 뺀 packet size
-		uint32_t totalRecvSize = packet.size - 4;
-		uint32_t bufferPos = packet.size - 4;
+		//payload의 DataPayload 크기 뺀 packet size
+		uint32_t totalRecvSize = packet.size - sizeof(DataPayload);
+		uint32_t bufferPos = packet.size - sizeof(DataPayload);
 
 		//PacketSize와 Payload Size가 일치할때
 		if (totalRecvSize == payload->size) {

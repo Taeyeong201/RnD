@@ -35,6 +35,7 @@ public:
 
 	//only Server
 	int startListener(int port);
+	void stopListener();
 	void getLocalAddress(QuicAddr& addr);
 private:
 	//Server, Clinet Common
@@ -46,6 +47,8 @@ private:
 
 	MsQuicCredentialConfig credConfig_;
 	MsQuicAlpn alpn_;
+
+	bool brokenConnection = false;
 
 	bool isServer = false;
 

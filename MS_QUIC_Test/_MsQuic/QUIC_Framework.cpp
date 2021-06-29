@@ -104,10 +104,12 @@ int QuicFramework::initializeConfig()
 
 bool QuicFramework::allShutdown()
 {
-	if (quicConnection_)
-		quicConnection_->Shutdown(0, QUIC_CONNECTION_SHUTDOWN_FLAG_NONE);
-	if (quicRegist_)
-		quicRegist_->Shutdown(QUIC_CONNECTION_SHUTDOWN_FLAG_NONE, 0);
+	if (!brokenConnection) {
+		if (quicConnection_)
+			quicConnection_->Shutdown(0, QUIC_CONNECTION_SHUTDOWN_FLAG_NONE);
+		if (quicRegist_)
+			quicRegist_->Shutdown(QUIC_CONNECTION_SHUTDOWN_FLAG_NONE, 0);
+	}
 	return false;
 }
 
@@ -182,8 +184,11 @@ int QuicFramework::startListener(int port)
 #endif
 		return -1;
 	};
-
 	return 0;
+}
+
+void QuicFramework::stopListener()
+{
 }
 
 void QuicFramework::getLocalAddress(QuicAddr& addr)
@@ -235,6 +240,10 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
+		if (ctx) {
+			ctx->brokenConnection = true;
+			ctx->stream_.stream_ = nullptr;
+		}
 		break;
 #ifdef DEBUG_
 	case QUIC_CONNECTION_EVENT_RESUMED:
@@ -297,6 +306,10 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
+		if (ctx) {
+			ctx->brokenConnection = true;
+			ctx->stream_.stream_ = nullptr;
+		}
 		break;
 #ifdef DEBUG_
 	case QUIC_CONNECTION_EVENT_RESUMED:
@@ -368,7 +381,10 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
-		if (ctx) ctx->stream_.stream_ = nullptr;
+		if (ctx) {
+			ctx->brokenConnection = true;
+			ctx->stream_.stream_ = nullptr;
+		}
 		break;
 	case QUIC_CONNECTION_EVENT_RESUMED:
 		printf("[conn][%p] Connection resumed!\n", Connection->Handle);

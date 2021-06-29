@@ -28,18 +28,18 @@ QUIC_STATUS QuicStream::StreamCallback(
 		// returned back to the app.
 		//
 		free(Event->SEND_COMPLETE.ClientContext);
-		printf("[strm][%p] Data sent\n", Stream->Handle);
+		//printf("[strm][%p] Data sent\n", Stream->Handle);
 		break;
 	case QUIC_STREAM_EVENT_RECEIVE:
 		//
 		// Data was received from the peer on the stream.
 		//
-		printf("[strm][%p] --- Data received\n", Stream->Handle);
-		printf("AbsoluteOffset %llu\n", Event->RECEIVE.AbsoluteOffset);
-		printf("TotalBufferLength %llu\n", Event->RECEIVE.TotalBufferLength);
-		printf("BufferCount %u\n", Event->RECEIVE.BufferCount);
-		printf("Buffers->Length %u\n", Event->RECEIVE.Buffers->Length);
-		printf("Flags %d\n", Event->RECEIVE.Flags);
+		//printf("[strm][%p] --- Data received\n", Stream->Handle);
+		//printf("AbsoluteOffset %llu\n", Event->RECEIVE.AbsoluteOffset);
+		//printf("TotalBufferLength %llu\n", Event->RECEIVE.TotalBufferLength);
+		//printf("BufferCount %u\n", Event->RECEIVE.BufferCount);
+		//printf("Buffers->Length %u\n", Event->RECEIVE.Buffers->Length);
+		//printf("Flags %d\n", Event->RECEIVE.Flags);
 
 		//for (uint32_t i = 0; i < Event->RECEIVE.Buffers->Length; i++) {
 		//	printf("%.2X", (uint8_t)Event->RECEIVE.Buffers->Buffer[i]);
@@ -48,12 +48,12 @@ QUIC_STATUS QuicStream::StreamCallback(
 
 		ctx->receiver_.queueBuffer(Event->RECEIVE.Buffers->Buffer, Event->RECEIVE.Buffers->Length);
 
-		printf("[strm][%p] --- Data received\n", Stream->Handle);
+		//printf("[strm][%p] --- Data received\n", Stream->Handle);
 
 		break;
 
 	case QUIC_STREAM_EVENT_IDEAL_SEND_BUFFER_SIZE:
-		printf("[strm][%p] Ideal Send Buffer Size(%llu)\n", Stream->Handle, Event->IDEAL_SEND_BUFFER_SIZE.ByteCount);
+		//printf("[strm][%p] Ideal Send Buffer Size(%llu)\n", Stream->Handle, Event->IDEAL_SEND_BUFFER_SIZE.ByteCount);
 
 		break;
 	case QUIC_STREAM_EVENT_PEER_SEND_SHUTDOWN:
@@ -102,16 +102,9 @@ QUIC_STATUS QuicStream::StreamCallback(
 
 bool QuicStream::receiveData(DataPacket& data)
 {
-	DataPacket packet = { 0, };
+	if (receiver_.getData(data)) return true;
 
-	if (receiver_.getData(packet)) {
-		data.data = std::move(packet.data);
-		data.size = packet.size;
-	}
-	else
-		return false;
-
-	return true;
+	return false;
 }
 
 bool QuicStream::Send(const uint8_t* buf, uint32_t size)
@@ -134,13 +127,13 @@ bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 		SendBuffer->Length = packetSize;
 
 
-		auto payload = (QUIC_BUFFER*)SendBuffer->Buffer;
-		payload->Buffer = SendBuffer->Buffer + sizeof(uint32_t);
-		payload->Length = size;
+		auto payload = (DataPayload*)SendBuffer->Buffer;
+		payload->buf = (uint8_t*)SendBuffer->Buffer + sizeof(DataPayload);
+		payload->size = size;
 
-		memcpy(payload->Buffer, buf, size);
+		memcpy(payload->buf, buf, size);
 
-		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBuffer))) {
+		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBufferRaw))) {
 			printf("StreamSend failed, 0x%x!\n", Status);
 			free(SendBufferRaw);
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
@@ -215,7 +208,7 @@ bool QuicStream::InitializeSend()
 		payload->buf = (uint8_t*)SendBuffer->Buffer + sizeof(DataPayload);
 		payload->size = packetSize - sizeof(DataPayload);
 
-		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_START, SendBuffer))) {
+		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_START, SendBufferRaw))) {
 			printf("StreamSend failed, 0x%x!\n", Status);
 			free(SendBufferRaw);
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
@@ -239,4 +232,3 @@ bool QuicStream::InitializeReceive()
 	else
 		return false;
 }
-

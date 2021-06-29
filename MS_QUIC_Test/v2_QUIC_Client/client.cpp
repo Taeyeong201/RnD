@@ -43,8 +43,8 @@ int main() {
 
 		}
 		else {
-			//for (int i = 0; i < 20; i++)
-			quicFramework.stream_.Send(input_string.c_str(), input_string.length());
+			for (int i = 0; i < 20; i++)
+				quicFramework.stream_.Send(input_string.c_str(), input_string.length());
 		}
 	}
 
