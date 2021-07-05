@@ -28,6 +28,7 @@ public:
 
 	bool InitializeSend();
 	bool InitializeReceive();
+
 private:
 	QuicDataReceiver receiver_;
 

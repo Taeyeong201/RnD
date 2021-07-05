@@ -6,12 +6,13 @@
 #include <functional>
 #include <string>
 #include <stdlib.h>
+#include <chrono>
 
 #include "QUIC_Framework.h"
 
 typedef unsigned long long u64;
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 8192
 
 u64 GetMicroCounter()
 {
@@ -45,12 +46,11 @@ int main(int argc, char** argv) {
 
 
 	quicFramework.quicSettings_;
-	quicFramework.quicSettings_.SetIdleTimeoutMs(50000);
+	quicFramework.quicSettings_.SetIdleTimeoutMs(100000);
 	quicFramework.quicSettings_.SetDisconnectTimeoutMs(10000);
 	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
+	quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
 	//quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
-	quicFramework.quicSettings_.SetMinimumMtu(3000);
-	quicFramework.quicSettings_.SetMaximumMtu(4000);
 
 	quicFramework.initializeConfig();
 
@@ -70,27 +70,35 @@ int main(int argc, char** argv) {
 	u64 start2, end2;
 	u64 testset = 0;
 	u64 testset1 = 0;
-	int totalBufferNum;
-	int BufferNum;
-	long file_size;
-	long totalReadBytes;
+
+	u64 totalBufferNum;
+	u64 BufferNum;
+	u64 file_size;
+	u64 totalReadBytes;
 
 	char buf[BUF_SIZE] = { 0, };
+
 
 	quicFramework.stream_.receiveData(data);
 	memcpy(buf, data.data.get(), data.size);
 	file_size = atol(buf);
-	printf("file size : %d\n", file_size);
+	printf("file size : %llu\n", file_size);
 	totalBufferNum = file_size / BUF_SIZE + 1;
 	BufferNum = 0;
 	totalReadBytes = 0;
 
-	start = GetMicroCounter();
+	std::chrono::system_clock::time_point chronostart = std::chrono::system_clock::now();
 
+	start = GetMicroCounter();
+	bool error = false;
 	while (BufferNum != totalBufferNum)
 	{
 		start1 = GetMicroCounter();
-		quicFramework.stream_.receiveData(data);
+		error = quicFramework.stream_.receiveData(data);
+		if (!error) {
+			printf("buffer error \n");
+			break;
+		}
 		end1 = GetMicroCounter();
 		testset += end1 - start1;
 
@@ -104,15 +112,33 @@ int main(int argc, char** argv) {
 		testset1 += end2 - start2;
 	}
 	end = GetMicroCounter();
-	printf("\nElapsed Time (micro seconds) : %lld\n", end - start);
-	printf("\nElapsed Time (micro seconds) : %lld\n", testset);
-	printf("\nElapsed Time (micro seconds) : %lld\n", testset1);
 
-	getchar();
+	std::chrono::system_clock::time_point chronoend = std::chrono::system_clock::now();
+
+	std::chrono::milliseconds mill
+		= std::chrono::duration_cast<std::chrono::milliseconds>(chronoend - chronostart);
+	std::chrono::seconds sec
+		= std::chrono::duration_cast<std::chrono::seconds>(chronoend - chronostart);
+	std::chrono::minutes min
+		= std::chrono::duration_cast<std::chrono::minutes>(chronoend - chronostart);
+	std::cout << "time : " << mill.count() << " milliseconds" << std::endl;
+	std::cout << "time : " << sec.count() << " seconds" << std::endl;
+	std::cout << "time : " << min.count() << " minutes" << std::endl;
+	//printf("\nTotal Recv : %lld\n", totalReadBytes);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", end - start);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", testset);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", testset1);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", quicFramework.stream_.test123123123());
+	//printf("\nrecv total interval : %llu\n", quicFramework.stream_.testtime);
+	//printf("\ncount : %lld\n", quicFramework.stream_.receiver_.t2);
+	//printf("\ncount : %lld\n", quicFramework.stream_.receiver_.t3);
+	//printf("\ncount : %lld\n", quicFramework.stream_.receiver_.t4);
+	//printf("\ncount : %lld\n", quicFramework.stream_.receiver_.t5);
 
 	fclose(fp);
 
 	quicFramework.close();
 	QuicFramework::QuicClose();
+	getchar();
 
 }

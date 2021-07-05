@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <WinSock2.h>
 #include <windows.h>
+#include <iostream>
+
+#include <chrono>
 #pragma comment(lib, "Ws2_32.lib")
 #if defined(_WIN32)
 #define sleep(sec)  Sleep((sec)*1000)
@@ -12,7 +15,7 @@ u64 GetMicroCounter();
 void udp(int argc, char** argv);
 void tcp(int argc, char** argv);
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 8192
 
 int main(int argc, char** argv) {
 	WSADATA wsaData;
@@ -34,6 +37,7 @@ int main(int argc, char** argv) {
 
 	WSACleanup();
 
+	getchar();
 
 	return 0;
 }
@@ -179,11 +183,11 @@ void tcp(int argc, char** argv)
 
 	SOCKET clientfd = ::accept(s, (struct sockaddr*)&local_addr, &addrlen);
 
-	int totalBufferNum;
-	int BufferNum;
-	int readBytes;
-	long file_size;
-	long totalReadBytes;
+	u64 totalBufferNum;
+	u64 BufferNum;
+	u64 readBytes;
+	u64 file_size;
+	u64 totalReadBytes;
 
 	char buf[BUF_SIZE];
 
@@ -193,6 +197,7 @@ void tcp(int argc, char** argv)
 	u64 testset = 0;
 	u64 testset1 = 0;
 	u64 testset2 = 0;
+	std::chrono::system_clock::time_point chronostart = std::chrono::system_clock::now();
 
 	FILE* fp;
 	errno_t err = fopen_s(&fp, argv[2], "wb");
@@ -233,13 +238,23 @@ void tcp(int argc, char** argv)
 		}
 		}
 	end = GetMicroCounter();
-	printf("\nElapsed Time (micro seconds) : %lld", end - start);
-	printf("\nElapsed Time (micro seconds) : %lld\n", testset);
-	printf("\nElapsed Time (micro seconds) : %lld\n", testset1);
-	printf("\nElapsed Time (micro seconds) : %lld\n", testset2);
+	//printf("\nElapsed Time (micro seconds) : %lld", end - start);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", testset);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", testset1);
+	//printf("\nElapsed Time (micro seconds) : %lld\n", testset2);
 
 	closesocket(s);
 
 	fclose(fp);
+	std::chrono::system_clock::time_point chronoend = std::chrono::system_clock::now();
 
+	std::chrono::milliseconds mill
+		= std::chrono::duration_cast<std::chrono::milliseconds>(chronoend - chronostart);
+	std::chrono::seconds sec
+		= std::chrono::duration_cast<std::chrono::seconds>(chronoend - chronostart);
+	std::chrono::minutes min
+		= std::chrono::duration_cast<std::chrono::minutes>(chronoend - chronostart);
+	std::cout << "time : " << mill.count() << " milliseconds" << std::endl;
+	std::cout << "time : " << sec.count() << " seconds" << std::endl;
+	std::cout << "time : " << min.count() << " minutes" << std::endl;
 }

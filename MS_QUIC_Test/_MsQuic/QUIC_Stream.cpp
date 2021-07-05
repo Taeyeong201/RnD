@@ -5,7 +5,23 @@
 QuicStream::QuicStream()
 {
 }
+unsigned long long GetMicroCounter123123()
+{
+	unsigned long long Counter = 0;
 
+#if defined(_WIN32)
+	unsigned long long Frequency = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&Frequency);
+	QueryPerformanceCounter((LARGE_INTEGER*)&Counter);
+	Counter = 1000000 * Counter / Frequency;
+#elif defined(__linux__)
+	struct timeval t;
+	gettimeofday(&t, 0);
+	Counter = 1000000 * t.tv_sec + t.tv_usec;
+#endif
+
+	return Counter;
+}
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_STREAM_CALLBACK)
 QUIC_STATUS QuicStream::StreamCallback(
@@ -14,7 +30,8 @@ QUIC_STATUS QuicStream::StreamCallback(
 	_Inout_ QUIC_STREAM_EVENT* Event)
 {
 	auto ctx = (QuicStream*)Context;
-
+	static uint64_t nowCall = 0, lastCall = 0;
+	
 	switch (Event->Type) {
 	case QUIC_STREAM_EVENT_START_COMPLETE:
 		printf("[strm][%p] Start Complete\n", Stream->Handle);
@@ -34,10 +51,10 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		// Data was received from the peer on the stream.
 		//
-		//printf("[strm][%p] --- Data received\n", Stream->Handle);
+		printf("[strm][%p] --- Data received\n", Stream->Handle);
 		//printf("AbsoluteOffset %llu\n", Event->RECEIVE.AbsoluteOffset);
 		//printf("TotalBufferLength %llu\n", Event->RECEIVE.TotalBufferLength);
-		//printf("BufferCount %u\n", Event->RECEIVE.BufferCount);
+		//	printf("BufferCount %u\n", Event->RECEIVE.BufferCount);
 		//printf("Buffers->Length %u\n", Event->RECEIVE.Buffers->Length);
 		//printf("Flags %d\n", Event->RECEIVE.Flags);
 
@@ -46,7 +63,8 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//}
 		//printf("\n");
 
-		ctx->receiver_.queueBuffer(Event->RECEIVE.Buffers->Buffer, Event->RECEIVE.Buffers->Length);
+		for (uint32_t i = 0; i < Event->RECEIVE.BufferCount; i++)
+			ctx->receiver_.queueBuffer(Event->RECEIVE.Buffers[i].Buffer, Event->RECEIVE.Buffers[i].Length);
 
 		//printf("[strm][%p] --- Data received\n", Stream->Handle);
 
@@ -90,6 +108,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		printf("[strm][%p] All done\n", Stream->Handle);
 
 		ctx->receiver_.stopRecv = true;
+		ctx->receiver_.shutdownGetData();
 		//Stream->ConnectionShutdown(0);
 		break;
 	default:

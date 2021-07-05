@@ -3,8 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <WinSock2.h>
+#include <ctime>
+#include <iostream>
+#include <chrono>
+
 #pragma comment(lib, "Ws2_32.lib")
-#define BUF_SIZE 1024
+#define BUF_SIZE 8192
 typedef unsigned long long u64;
 u64 GetMicroCounter();
 void udp(int argc, char** argv);
@@ -24,11 +28,26 @@ int main(int argc, char** argv) {
         printf("WSAStartup failed: %d\n", iResult);
         exit(1);
     }
-
+    std::chrono::system_clock::time_point chronostart = std::chrono::system_clock::now();
     //udp(argc, argv);
     tcp(argc, argv);
+    std::chrono::system_clock::time_point chronoend = std::chrono::system_clock::now();
+
+
+    std::chrono::milliseconds mill
+        = std::chrono::duration_cast<std::chrono::milliseconds>(chronoend - chronostart);
+    std::chrono::seconds sec
+        = std::chrono::duration_cast<std::chrono::seconds>(chronoend - chronostart);
+    std::chrono::minutes min
+        = std::chrono::duration_cast<std::chrono::minutes>(chronoend - chronostart);
+    std::cout << "time : " << mill.count() << " milliseconds" << std::endl;
+    std::cout << "time : " << sec.count() << " seconds" << std::endl;
+    std::cout << "time : " << min.count() << " minutes" << std::endl;
 
     WSACleanup();
+
+    getchar();
+
     return 0;
 }
 
@@ -120,11 +139,12 @@ void tcp(int argc, char** argv)
     u64 start2, end2;
     u64 testset = 0;
     u64 testset1 = 0;
-    int totalBufferNum;
-    int BufferNum;
-    int sendBytes;
-    int file_size;  // total file size
-    int totalSendBytes;  // received file size
+
+    u64 totalBufferNum;
+    u64 BufferNum;
+    u64 sendBytes;
+    u64 file_size;  // total file size
+    u64 totalSendBytes;  // received file size
 
     char buf[BUF_SIZE];
 
@@ -155,7 +175,7 @@ void tcp(int argc, char** argv)
 
     start = GetMicroCounter();
 
-    _snprintf_s(buf, sizeof(buf), "%d", file_size);
+    _snprintf_s(buf, sizeof(buf), "%llu", file_size);
     sendBytes = send(s, buf, sizeof(char) * 1024, 0);
 
     while ((sendBytes = (int)fread(buf, sizeof(char), sizeof(buf), fp)) > 0) {
@@ -168,9 +188,9 @@ void tcp(int argc, char** argv)
         //printf("In progress: %10d/%10d(Bytes) [%03d%%]\r", totalSendBytes, file_size, ((BufferNum * 100) / totalBufferNum));
     }
     end = GetMicroCounter();
-    printf("\nElapsed Time (micro seconds) : %lld", end - start);
-    printf("\nElapsed Time (micro seconds) : %lld\n", testset);
-    printf("\nElapsed Time (micro seconds) : %lld\n", testset1);
+    printf("\nElapsed Time (micro seconds) : %lld\n", end - start);
+    printf("Elapsed Time (micro seconds) : %lld\n", testset);
+    printf("Elapsed Time (micro seconds) : %lld\n", testset1);
     closesocket(s);
 
     fclose(fp);

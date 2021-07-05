@@ -3,11 +3,16 @@
 #include <thread>
 #include <functional>
 
+#include <deque>
+#include <mutex>
+
 #include "QUIC_Common.h"
 
 #include "blockingconcurrentqueue.h"
 
 using namespace moodycamel;
+
+#define QUEUE 0
 
 struct DataPacket {
 	~DataPacket();
@@ -31,11 +36,23 @@ public:
 
 	bool stopRecv = false;
 
-private:
+	unsigned long long testime = 0;
+	unsigned long long t1 = 0;
+	unsigned long long t2 = 0;
+	unsigned long long t3 = 0;
+	unsigned long long t4 = 0;
+	unsigned long long t5 = 0;
+
 	void shutdownGetData();
+private:
 	bool remainingPacket(uint8_t* packetBuf, uint32_t remainPacketSize);
 
+#if QUEUE
 	BlockingConcurrentQueue<DataPacket> queue_;
 	BlockingConcurrentQueue<DataPacket> remainQueue_;
+#else
+	std::deque<DataPacket> deque_;
+	std::mutex recvMutex;
+#endif
 };
 

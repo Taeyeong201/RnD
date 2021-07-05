@@ -19,12 +19,18 @@ int main() {
 
 
 	quicFramework.quicSettings_;
+	const uint32_t Version = 0xff00001dU; // IETF draft 29
+	quicFramework.quicSettings_.SetDesiredVersionsList(&Version, 1);
 	quicFramework.quicSettings_.SetIdleTimeoutMs(50000);
-	quicFramework.quicSettings_.SetDisconnectTimeoutMs(1000);
+	quicFramework.quicSettings_.SetDisconnectTimeoutMs(10000);
 	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
 	//quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
 	quicFramework.quicSettings_.SetMinimumMtu(3000);
 	quicFramework.quicSettings_.SetMaximumMtu(4000);
+
+	quicFramework.quicSettings_.KeepAliveIntervalMs = 5000;
+	quicFramework.quicSettings_.IsSet.KeepAliveIntervalMs = TRUE;
+
 
 	quicFramework.initializeConfig();
 

@@ -342,6 +342,7 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 	case QUIC_CONNECTION_EVENT_CONNECTED:
 		printf("[conn][%p] Connected\n", Connection->Handle);
 		if (ctx) ctx->quicConnection_ = Connection;
+		Connection->SendResumptionTicket(QUIC_SEND_RESUMPTION_FLAG_FINAL, 0, nullptr);
 		break;
 	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
 		printf("[strm][%p] Peer started\n", Event->PEER_STREAM_STARTED.Stream);
@@ -450,7 +451,10 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
-		if (ctx) ctx->stream_.stream_ = nullptr;
+		if (ctx) {
+			ctx->brokenConnection = true;
+			ctx->stream_.stream_ = nullptr;
+		}
 		break;
 	case QUIC_CONNECTION_EVENT_RESUMED:
 		printf("[conn][%p] Connection resumed!\n", Connection->Handle);

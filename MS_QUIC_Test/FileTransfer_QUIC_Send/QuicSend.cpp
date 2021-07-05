@@ -7,11 +7,12 @@
 #include <functional>
 #include <string>
 #include <stdlib.h>
+#include <chrono>
 
 #include "QUIC_Framework.h"
 typedef unsigned long long u64;
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 8192
 
 u64 GetMicroCounter()
 {
@@ -32,9 +33,9 @@ u64 GetMicroCounter()
 }
 
 int main(int argc, char** argv) {
-	if (argc != 3) {
+	if (argc != 4) {
 		printf("Command parameter does not right.\n");
-		printf("%s <port> <filename>", argv[0]);
+		printf("%s <ip> <port> <filename>", argv[0]);
 		exit(1);
 	}
 
@@ -46,38 +47,42 @@ int main(int argc, char** argv) {
 
 
 	quicFramework.quicSettings_;
-	quicFramework.quicSettings_.SetIdleTimeoutMs(50000);
-	quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
+
+	const uint32_t Version = 0xff00001dU; // IETF draft 29
+	quicFramework.quicSettings_.SetDesiredVersionsList(&Version, 1);
+	quicFramework.quicSettings_.SetIdleTimeoutMs(100000);
 	quicFramework.quicSettings_.SetDisconnectTimeoutMs(10000);
 	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
 	//quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
-	quicFramework.quicSettings_.SetMinimumMtu(3000);
-	quicFramework.quicSettings_.SetMaximumMtu(4000);
+	quicFramework.quicSettings_.KeepAliveIntervalMs = 5000;
+	quicFramework.quicSettings_.IsSet.KeepAliveIntervalMs = TRUE;
 
 	//printf("%d\n", strlen("111"));
 
 	quicFramework.initializeConfig();
 
 	FILE* fp;
-	errno_t err = fopen_s(&fp, argv[2], "rb");
+	errno_t err = fopen_s(&fp, argv[3], "rb");
 	if (err != 0) {
 		printf("File Do not created!");
 		exit(1);
 	}
-	quicFramework.connection("127.0.0.1", atoi(argv[1]));
+	quicFramework.connection(argv[1], atoi(argv[2]));
 
 	//std::string input_string;
 
 	u64 start, end;
+	u64 start1, end1;
+	u64 testset = 0;
 
 	char buf[BUF_SIZE];
 
 
-	int totalBufferNum;
-	int BufferNum;
-	int sendBytes;
-	int file_size;  // total file size
-	int totalSendBytes;  // received file size
+	u64 totalBufferNum;
+	u64 BufferNum;
+	u64 sendBytes;
+	u64 file_size;  // total file size
+	u64 totalSendBytes;  // received file size
 
 	fseek(fp, 0, SEEK_END);
 	file_size = ftell(fp);
@@ -86,17 +91,22 @@ int main(int argc, char** argv) {
 	BufferNum = 0;
 	totalSendBytes = 0;
 
-	getchar();
+	
+	Sleep(1000);
+	std::chrono::system_clock::time_point chronostart = std::chrono::system_clock::now();
 
-	_snprintf_s(buf, sizeof(buf), "%d", file_size);
+	_snprintf_s(buf, sizeof(buf), "%llu", file_size);
 	quicFramework.stream_.Send(buf, BUF_SIZE);
-	printf("send first data : %d\n", file_size);
+	printf("send first data : %llu\n", file_size);
 
 	start = GetMicroCounter();
 
 	while ((sendBytes = (int)fread(buf, sizeof(char), sizeof(buf), fp)) > 0)
 	{
+		start1 = GetMicroCounter();
 		quicFramework.stream_.Send(buf, sendBytes);
+		end1 = GetMicroCounter();
+		testset += end1 - start1;
 
 		BufferNum++;
 		totalSendBytes += sendBytes;
@@ -108,7 +118,20 @@ int main(int argc, char** argv) {
 
 	end = GetMicroCounter();
 
-	printf("\nElapsed Time (micro seconds) : %lld\n", end - start);
+	std::chrono::system_clock::time_point chronoend = std::chrono::system_clock::now();
+
+
+	std::chrono::milliseconds mill
+		= std::chrono::duration_cast<std::chrono::milliseconds>(chronoend - chronostart);
+	std::chrono::seconds sec
+		= std::chrono::duration_cast<std::chrono::seconds>(chronoend - chronostart);
+	std::chrono::minutes min
+		= std::chrono::duration_cast<std::chrono::minutes>(chronoend - chronostart);
+	std::cout << "time : " << mill.count() << " milliseconds" << std::endl;
+	std::cout << "time : " << sec.count() << " seconds" << std::endl;
+	std::cout << "time : " << min.count() << " minutes" << std::endl;
+	//printf("\nElapsed Time (micro seconds) : %lld\n", end - start);
+	//printf("Elapsed Time (micro seconds) : %lld\n", end - start);
 
 	getchar();
 
@@ -116,6 +139,7 @@ int main(int argc, char** argv) {
 
 	QuicFramework::QuicClose();
 
+	printf("end");
 
 	return 0;
 }
