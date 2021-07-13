@@ -7,6 +7,8 @@
 #include <functional>
 #include <string>
 
+#include <thread>
+
 #include "QUIC_Framework.h"
 
 
@@ -17,15 +19,20 @@ int main() {
 
 	QuicFramework quicFramework("server");
 
-
-	quicFramework.quicSettings_;
-	quicFramework.quicSettings_.SetIdleTimeoutMs(50000);
+	quicFramework.quicSettings_.SetIdleTimeoutMs(13000);
 	quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
 	quicFramework.quicSettings_.SetDisconnectTimeoutMs(1000);
-	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
-	//quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
-	quicFramework.quicSettings_.SetMinimumMtu(3000);
-	quicFramework.quicSettings_.SetMaximumMtu(4000);
+	quicFramework.quicSettings_.SetPeerBidiStreamCount(1);
+
+
+	//quicFramework.quicSettings_;
+	//quicFramework.quicSettings_.SetIdleTimeoutMs(50000);
+	//quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
+	//quicFramework.quicSettings_.SetDisconnectTimeoutMs(1000);
+	//quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
+	////quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
+	//quicFramework.quicSettings_.SetMinimumMtu(3000);
+	//quicFramework.quicSettings_.SetMaximumMtu(4000);
 
 	//printf("%d\n", strlen("111"));
 

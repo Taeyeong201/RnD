@@ -5,15 +5,24 @@
 const MsQuicApi* MsQuic;
 
 QuicFramework::QuicFramework()
-	: alpn_("cloudein")
+	: alpn_("cloudein"), credConfig_(), crtFile_()
 {
 	credConfig_.Flags = QUIC_CREDENTIAL_FLAG_CLIENT | QUIC_CREDENTIAL_FLAG_NO_CERTIFICATE_VALIDATION;
 	credConfig_.Type = QUIC_CREDENTIAL_TYPE_NONE;
-
+	QUIC_STATUS Status;
+	if (QUIC_FAILED(Status = quicSettings_.GetGlobal())) {
+#ifdef PLOG
+		PLOG_ERROR << "GetSetting Failed";
+		StatusPrint(Status);
+#else
+		std::cout << "GetSetting Failed, ";
+		StatusPrint(Status);
+#endif
+	}
 }
 
 QuicFramework::QuicFramework(const std::string form)
-	: alpn_("cloudein"), credConfig_()
+	: alpn_("cloudein"), credConfig_(), crtFile_()
 {
 	if (form.compare("server") == 0) {
 		isServer = true;
@@ -23,6 +32,16 @@ QuicFramework::QuicFramework(const std::string form)
 		credConfig_.Type = QUIC_CREDENTIAL_TYPE_CERTIFICATE_FILE;
 		credConfig_.Flags = QUIC_CREDENTIAL_FLAG_NONE;
 		credConfig_.CertificateFile = &crtFile_;
+	}
+	QUIC_STATUS Status;
+	if (QUIC_FAILED(Status = quicSettings_.GetGlobal())) {
+#ifdef PLOG
+		PLOG_ERROR << "GetSetting Failed";
+		StatusPrint(Status);
+#else
+		std::cout << "GetSetting Failed, ";
+		StatusPrint(Status);
+#endif
 	}
 }
 
@@ -69,7 +88,7 @@ int QuicFramework::initializeConfig()
 	if (!quicRegist_->IsValid()) {
 #ifdef PLOG
 		PLOG_ERROR << "Registration Failed";
-		StatusPrint(quicRegist_->GetInitStatus())
+		StatusPrint(quicRegist_->GetInitStatus());
 #else
 		std::cout << "Registration Failed, ";
 		StatusPrint(quicRegist_->GetInitStatus());
@@ -91,7 +110,7 @@ int QuicFramework::initializeConfig()
 	if (!quicConfig_->IsValid()) {
 #ifdef PLOG
 		PLOG_ERROR << "Configuration Failed";
-		StatusPrint(quicConfig_->GetInitStatus())
+		StatusPrint(quicConfig_->GetInitStatus());
 #else
 		std::cout << "Configuration Failed, ";
 		StatusPrint(quicConfig_->GetInitStatus());
@@ -141,7 +160,7 @@ int QuicFramework::connection(const std::string& ip,const unsigned short port)
 	if (!quicConnection_->IsValid()) {
 #ifdef PLOG
 		PLOG_ERROR << "Connection Failed";
-		StatusPrint(quicListener_->GetInitStatus())
+		StatusPrint(quicListener_->GetInitStatus());
 #else
 		std::cout << "Connection Failed, ";
 		StatusPrint(quicListener_->GetInitStatus());
@@ -163,7 +182,7 @@ int QuicFramework::startListener(int port)
 	if (!quicListener_->IsValid()) {
 #ifdef PLOG
 		PLOG_ERROR << "Listener Failed";
-		StatusPrint(quicListener_->GetInitStatus())
+		StatusPrint(quicListener_->GetInitStatus());
 #else
 		std::cout << "Listener Failed, ";
 		StatusPrint(quicListener_->GetInitStatus());
@@ -209,6 +228,7 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 	case QUIC_CONNECTION_EVENT_CONNECTED:
 		PLOG_INFO.printf("[conn][%p] Connected\n", Connection->Handle);
 		if (ctx) ctx->quicConnection_ = Connection;
+		Connection->SendResumptionTicket(QUIC_SEND_RESUMPTION_FLAG_FINAL, 0, nullptr);
 		break;
 	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
 		PLOG_INFO.printf("[strm][%p] Peer started\n", Event->PEER_STREAM_STARTED.Stream);
@@ -216,7 +236,18 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	ctx->quicSessions_->newSession(Event->PEER_STREAM_STARTED.Stream);
 		//else
 		//	return QUIC_STATUS_OUT_OF_MEMORY;
-
+		if (ctx) {
+			ctx->quicConnection_ = Connection;
+			ctx->stream_.stream_ =
+				new(std::nothrow) MsQuicStream(
+					*Connection,
+					QUIC_STREAM_OPEN_FLAG_NONE,
+					CleanUpAutoDelete,
+					QuicStream::StreamCallback,
+					&ctx->stream_
+				);
+			ctx->stream_.InitializeSend();
+		}
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
 		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {
@@ -265,7 +296,7 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_CONNECTION_CALLBACK)
-QUIC_STATUS QuicFramework::ServerConnCallback(
+QUIC_STATUS QuicFramework::ClientConnCallback(
 	_In_ MsQuicConnection* Connection,
 	_In_opt_ void* Context,
 	_Inout_ QUIC_CONNECTION_EVENT* Event)
@@ -275,6 +306,20 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 	case QUIC_CONNECTION_EVENT_CONNECTED:
 		PLOG_INFO.printf("[conn][%p] Connected\n", Connection->Handle);
 		if (ctx) ctx->quicConnection_ = Connection;
+
+		if (ctx) {
+			ctx->quicConnection_ = Connection;
+			ctx->stream_.stream_ =
+				new(std::nothrow) MsQuicStream(
+					*Connection,
+					QUIC_STREAM_OPEN_FLAG_NONE,
+					CleanUpAutoDelete,
+					QuicStream::StreamCallback,
+					&ctx->stream_
+				);
+			ctx->stream_.InitializeSend();
+		}
+
 		break;
 	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
 		PLOG_INFO.printf("[strm][%p] Peer started\n", Event->PEER_STREAM_STARTED.Stream);
@@ -282,7 +327,14 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	ctx->quicSessions_->newSession(Event->PEER_STREAM_STARTED.Stream);
 		//else
 		//	return QUIC_STATUS_OUT_OF_MEMORY;
-
+		if (ctx) {
+			ctx->stream_.stream_ =
+				new(std::nothrow) MsQuicStream(
+					Event->PEER_STREAM_STARTED.Stream,
+					CleanUpAutoDelete,
+					QuicStream::StreamCallback,
+					&ctx->stream_);
+		}
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
 		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {

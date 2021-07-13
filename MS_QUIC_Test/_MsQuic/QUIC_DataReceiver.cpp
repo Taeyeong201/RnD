@@ -11,23 +11,7 @@ QuicDataReceiver::QuicDataReceiver()
 #endif
 {
 }
-unsigned long long GetMicroCounter123()
-{
-	unsigned long long Counter = 0;
 
-#if defined(_WIN32)
-	unsigned long long Frequency = 0;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&Frequency);
-	QueryPerformanceCounter((LARGE_INTEGER*)&Counter);
-	Counter = 1000000 * Counter / Frequency;
-#elif defined(__linux__)
-	struct timeval t;
-	gettimeofday(&t, 0);
-	Counter = 1000000 * t.tv_sec + t.tv_usec;
-#endif
-
-	return Counter;
-}
 bool QuicDataReceiver::getData(DataPacket& data)
 {
 	DataPacket packet = { 0, };
@@ -193,7 +177,7 @@ void QuicDataReceiver::queueBuffer(uint8_t* buffer, unsigned int size)
 	//	std::cout << "warning recv queue overflow" << std::endl;
 }
 
-void QuicDataReceiver::shutdownGetData()
+void QuicDataReceiver::shutdownGetDataFunc()
 {
 	DataPacket packet = { 0, };
 

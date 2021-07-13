@@ -5,23 +5,7 @@
 QuicStream::QuicStream()
 {
 }
-unsigned long long GetMicroCounter123123()
-{
-	unsigned long long Counter = 0;
 
-#if defined(_WIN32)
-	unsigned long long Frequency = 0;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&Frequency);
-	QueryPerformanceCounter((LARGE_INTEGER*)&Counter);
-	Counter = 1000000 * Counter / Frequency;
-#elif defined(__linux__)
-	struct timeval t;
-	gettimeofday(&t, 0);
-	Counter = 1000000 * t.tv_sec + t.tv_usec;
-#endif
-
-	return Counter;
-}
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_STREAM_CALLBACK)
 QUIC_STATUS QuicStream::StreamCallback(
@@ -78,6 +62,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		printf("[strm][%p] Peer shut down\n", Stream->Handle);
 		// 정상적인 종료는 Shutdown을 보내줌
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_GRACEFUL);
+		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		break;
 	case QUIC_STREAM_EVENT_PEER_SEND_ABORTED:
@@ -87,6 +72,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		printf("[strm][%p] Peer Send aborted, ", Stream->Handle);
 		StatusPrint(Event->PEER_SEND_ABORTED.ErrorCode);
 		Stream->Shutdown(Event->PEER_SEND_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_SEND);
+		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		//Stream->ConnectionShutdown(Event->PEER_SEND_ABORTED.ErrorCode);
 		break;
@@ -97,6 +83,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		printf("[strm][%p] Peer Receive aborted, ", Stream->Handle);
 		StatusPrint(Event->PEER_RECEIVE_ABORTED.ErrorCode);
 		Stream->Shutdown(Event->PEER_RECEIVE_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_RECEIVE);
+		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		//Stream->ConnectionShutdown(Event->PEER_RECEIVE_ABORTED.ErrorCode);
 		break;
@@ -108,7 +95,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		printf("[strm][%p] All done\n", Stream->Handle);
 
 		ctx->receiver_.stopRecv = true;
-		ctx->receiver_.shutdownGetData();
+		ctx->receiver_.shutdownGetDataFunc();
 		//Stream->ConnectionShutdown(0);
 		break;
 	default:
@@ -121,8 +108,9 @@ QUIC_STATUS QuicStream::StreamCallback(
 
 bool QuicStream::receiveData(DataPacket& data)
 {
-	if (receiver_.getData(data)) return true;
-
+	if (stream_->Handle) {
+		if (receiver_.getData(data)) return true;
+	}
 	return false;
 }
 

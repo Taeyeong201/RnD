@@ -43,7 +43,7 @@ public:
 	unsigned long long t4 = 0;
 	unsigned long long t5 = 0;
 
-	void shutdownGetData();
+	void shutdownGetDataFunc();
 private:
 	bool remainingPacket(uint8_t* packetBuf, uint32_t remainPacketSize);
 
