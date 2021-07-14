@@ -11,12 +11,9 @@ QuicFramework::QuicFramework()
 	credConfig_.Type = QUIC_CREDENTIAL_TYPE_NONE;
 	QUIC_STATUS Status;
 	if (QUIC_FAILED(Status = quicSettings_.GetGlobal())) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] GetSetting Failed, %s", Status, StatusPrint(Status));
-#else
-		std::cout << "GetSetting Failed, ";
-		StatusPrint(Status);
-#endif
+
 	}
 }
 
@@ -34,12 +31,9 @@ QuicFramework::QuicFramework(const std::string form)
 	}
 	QUIC_STATUS Status;
 	if (QUIC_FAILED(Status = quicSettings_.GetGlobal())) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] GetSetting Failed, %s", Status, StatusPrint(Status));
-#else
-		std::cout << "GetSetting Failed, ";
-		StatusPrint(Status);
-#endif
+
 	}
 }
 
@@ -54,11 +48,10 @@ int QuicFramework::QuicOpen()
 		return -1;
 	}
 	if (QUIC_FAILED(Status = MsQuic->GetInitStatus())) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] MsQuic Failed To Initialize, %s\n", Status, StatusPrint(Status));
-#else
-		printf("MsQuic Failed To Initialize: 0x%x\n", Status);
-#endif
+
+
 		return -1;
 	}
 	return 0;
@@ -84,14 +77,11 @@ int QuicFramework::initializeConfig()
 
 	quicRegist_ = new MsQuicRegistration();
 	if (!quicRegist_->IsValid()) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] Registration Failed, %s",
 			quicRegist_->GetInitStatus(),
 			StatusPrint(quicRegist_->GetInitStatus()));
-#else
-		std::cout << "Registration Failed, ";
-		StatusPrint(quicRegist_->GetInitStatus());
-#endif
+
 		return -1;
 	}
 	//	if (QUIC_FAILED(Status = quicSettings_.GetGlobal())) {
@@ -107,14 +97,11 @@ int QuicFramework::initializeConfig()
 
 	quicConfig_ = new MsQuicConfiguration(*quicRegist_, alpn_, quicSettings_, credConfig_);
 	if (!quicConfig_->IsValid()) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] Configuration Failed, %s",
 			quicConfig_->GetInitStatus(),
 			StatusPrint(quicConfig_->GetInitStatus()));
-#else
-		std::cout << "Configuration Failed, ";
-		StatusPrint(quicConfig_->GetInitStatus());
-#endif
+
 		return -1;
 	}
 
@@ -158,24 +145,17 @@ int QuicFramework::connection(const std::string& ip, const unsigned short port)
 
 	quicConnection_ = new MsQuicConnection(*quicRegist_, CleanUpAutoDelete, QuicFramework::ClientConnCallback, this);
 	if (!quicConnection_->IsValid()) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] Connection Failed, %s",
 			quicConnection_->GetInitStatus(),
 			StatusPrint(quicConnection_->GetInitStatus()));
-#else
-		std::cout << "Connection Failed, ";
-		StatusPrint(quicListener_->GetInitStatus());
-#endif
 		return -1;
 	}
 	if (QUIC_FAILED(Status = quicConnection_->Start(*quicConfig_, ip.c_str(), port))) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] ConnectionStart Failed, %s",
 			Status,
 			StatusPrint(Status));
-#else
-		printf("ConnectionStart failed, 0x%x!\n", Status);
-#endif
 	}
 
 	return 0;
@@ -187,14 +167,11 @@ int QuicFramework::startListener(int port)
 
 	quicListener_ = new MsQuicAutoAcceptListener(*quicRegist_, *quicConfig_, ServerConnCallback, this);
 	if (!quicListener_->IsValid()) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] Listener Failed, %s",
 			quicListener_->GetInitStatus(),
 			StatusPrint(quicListener_->GetInitStatus()));
-#else
-		std::cout << "Listener Failed, ";
-		StatusPrint(quicListener_->GetInitStatus());
-#endif
+
 		return -1;
 	}
 	QUIC_ADDR addr = {};
@@ -202,14 +179,10 @@ int QuicFramework::startListener(int port)
 	QuicAddrSetPort(&addr, port);
 
 	if (QUIC_FAILED(Status = quicListener_->Start(alpn_, &addr))) {
-#ifdef PLOG
+
 		PLOG_ERROR.printf("[0x%x] Listener Start Failed, %s",
 			Status,
 			StatusPrint(Status));
-#else
-		std::cout << "Listener Start Failed, ";
-		StatusPrint(Status);
-#endif
 		return -1;
 	};
 	return 0;
@@ -224,7 +197,6 @@ void QuicFramework::getLocalAddress(QuicAddr& addr)
 	quicListener_->GetLocalAddr(addr);
 }
 
-#ifdef PLOG
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_CONNECTION_CALLBACK)
 QUIC_STATUS QuicFramework::ServerConnCallback(
@@ -391,145 +363,3 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 	}
 	return QUIC_STATUS_SUCCESS;
 }
-#else
-
-_IRQL_requires_max_(PASSIVE_LEVEL)
-_Function_class_(QUIC_CONNECTION_CALLBACK)
-QUIC_STATUS QuicFramework::ServerConnCallback(
-	_In_ MsQuicConnection* Connection,
-	_In_opt_ void* Context,
-	_Inout_ QUIC_CONNECTION_EVENT* Event)
-{
-	auto ctx = (QuicFramework*)Context;
-	switch (Event->Type) {
-	case QUIC_CONNECTION_EVENT_CONNECTED:
-		printf("[conn][%p] Connected\n", Connection->Handle);
-		if (ctx) ctx->quicConnection_ = Connection;
-		Connection->SendResumptionTicket(QUIC_SEND_RESUMPTION_FLAG_FINAL, 0, nullptr);
-		break;
-	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
-		printf("[strm][%p] Peer started\n", Event->PEER_STREAM_STARTED.Stream);
-		//if (ctx) 
-		//	ctx->quicSessions_->newSession(Event->PEER_STREAM_STARTED.Stream);
-		//else
-		//	return QUIC_STATUS_OUT_OF_MEMORY;
-
-		if (ctx) {
-			ctx->stream_.stream_ =
-				new(std::nothrow) MsQuicStream(
-					Event->PEER_STREAM_STARTED.Stream,
-					CleanUpAutoDelete,
-					QuicStream::StreamCallback,
-					&ctx->stream_);
-		}
-
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
-		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {
-			printf("[conn][%p] Successfully shut down on idle.\n", Connection->Handle);
-		}
-		else {
-			printf("[conn][%p] Shut down by transport, ", Connection->Handle);
-			StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status);
-		}
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_PEER:
-		printf("[conn][%p] Shut down by peer ", Connection->Handle);
-		StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode);
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_COMPLETE:
-		printf("[conn][%p] All done\n", Connection->Handle);
-		//if (ctx) {
-		//	for (auto elem : ctx->quicSessions_->sessionListMap_) {
-		//		elem.second.reset();
-		//	}
-		//	ctx->quicSessions_->sessionListMap_.clear();
-		//}
-		if (ctx) {
-			ctx->brokenConnection = true;
-			ctx->stream_.stream_ = nullptr;
-		}
-		break;
-	case QUIC_CONNECTION_EVENT_RESUMED:
-		printf("[conn][%p] Connection resumed!\n", Connection->Handle);
-		break;
-	case QUIC_CONNECTION_EVENT_IDEAL_PROCESSOR_CHANGED:
-		printf("[conn][%p] ideal processor chaged\n", Connection->Handle);
-		break;
-	default:
-		printf("[conn][%p] Unknown Event %d\n", Connection->Handle, Event->Type);
-		break;
-	}
-
-	return QUIC_STATUS_SUCCESS;
-}
-
-
-_IRQL_requires_max_(PASSIVE_LEVEL)
-_Function_class_(QUIC_CONNECTION_CALLBACK)
-QUIC_STATUS QuicFramework::ClientConnCallback(
-	_In_ MsQuicConnection* Connection,
-	_In_opt_ void* Context,
-	_Inout_ QUIC_CONNECTION_EVENT* Event)
-{
-	auto ctx = (QuicFramework*)Context;
-	switch (Event->Type) {
-	case QUIC_CONNECTION_EVENT_CONNECTED:
-		printf("[conn][%p] Connected\n", Connection->Handle);
-		if (ctx) {
-			ctx->quicConnection_ = Connection;
-			ctx->stream_.stream_ =
-				new(std::nothrow) MsQuicStream(
-					*Connection,
-					QUIC_STREAM_OPEN_FLAG_NONE,
-					CleanUpAutoDelete,
-					QuicStream::StreamCallback,
-					&ctx->stream_
-				);
-			ctx->stream_.InitializeSend();
-		}
-
-		break;
-	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
-		printf("[strm][%p] Peer started\n", Event->PEER_STREAM_STARTED.Stream);
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
-		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {
-			printf("[conn][%p] Successfully shut down on idle.\n", Connection->Handle);
-		}
-		else {
-			printf("[conn][%p] Shut down by transport, ", Connection->Handle);
-			StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status);
-		}
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_PEER:
-		printf("[conn][%p] Shut down by peer ", Connection->Handle);
-		StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode);
-		break;
-	case QUIC_CONNECTION_EVENT_SHUTDOWN_COMPLETE:
-		printf("[conn][%p] All done\n", Connection->Handle);
-		//if (ctx) {
-		//	for (auto elem : ctx->quicSessions_->sessionListMap_) {
-		//		elem.second.reset();
-		//	}
-		//	ctx->quicSessions_->sessionListMap_.clear();
-		//}
-		if (ctx) {
-			ctx->brokenConnection = true;
-			ctx->stream_.stream_ = nullptr;
-		}
-		break;
-	case QUIC_CONNECTION_EVENT_RESUMED:
-		printf("[conn][%p] Connection resumed!\n", Connection->Handle);
-		break;
-	case QUIC_CONNECTION_EVENT_IDEAL_PROCESSOR_CHANGED:
-		printf("[conn][%p] ideal processor chaged\n", Connection->Handle);
-		break;
-	default:
-		printf("[conn][%p] Unknown Event %d\n", Connection->Handle, Event->Type);
-		break;
-	}
-
-	return QUIC_STATUS_SUCCESS;
-}
-#endif

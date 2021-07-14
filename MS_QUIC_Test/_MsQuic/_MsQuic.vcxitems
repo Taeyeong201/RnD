@@ -17,12 +17,14 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)blockingconcurrentqueue.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)concurrentqueue.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)lightweightsemaphore.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)QuicStreamManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Common.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Framework.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Stream.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)QuicStreamManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Common.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Framework.cpp" />
