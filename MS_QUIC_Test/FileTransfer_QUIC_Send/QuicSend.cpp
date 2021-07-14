@@ -9,6 +9,11 @@
 #include <stdlib.h>
 #include <chrono>
 
+#include <plog/Log.h>
+#include <plog/Init.h>
+#include <plog/Formatters/TxtFormatter.h>
+#include <plog/Appenders/DebugOutputAppender.h>
+
 #include "QUIC_Framework.h"
 typedef unsigned long long u64;
 
@@ -33,6 +38,10 @@ u64 GetMicroCounter()
 }
 
 int main(int argc, char** argv) {
+
+	static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
+	plog::init(plog::verbose, &debugOutputAppender);
+
 	if (argc != 4) {
 		printf("Command parameter does not right.\n");
 		printf("%s <ip> <port> <filename>", argv[0]);

@@ -32,7 +32,7 @@ bool QuicDataReceiver::getData(DataPacket& data)
 		deque_.pop_front();
 		recvMutex.unlock();
 #endif
-		if (!packet.data) 
+		if (!packet.data)
 			return false;
 
 		// Packet Size가 Payload Size 보다 작을때
@@ -59,7 +59,7 @@ bool QuicDataReceiver::getData(DataPacket& data)
 
 		auto payload = (DataPayload*)packet.data.get();
 		auto payloadBuf = (uint8_t*)packet.data.get() + sizeof(DataPayload);
-	
+
 		data.size = payload->size;
 		data.data = std::shared_ptr<unsigned char>(
 			new unsigned char[payload->size],
@@ -91,7 +91,7 @@ bool QuicDataReceiver::getData(DataPacket& data)
 					deque_.pop_front();
 					recvMutex.unlock();
 #endif
-					if (!remainPacket.data) 
+					if (!remainPacket.data)
 						return false;
 
 					totalRecvSize += remainPacket.size;
@@ -99,7 +99,6 @@ bool QuicDataReceiver::getData(DataPacket& data)
 					if (totalRecvSize < payload->size) {
 						memcpy(data.data.get() + bufferPos, remainPacket.data.get(), remainPacket.size);
 						bufferPos += remainPacket.size;
-						t5++;
 					}
 					else if (totalRecvSize > payload->size) {
 

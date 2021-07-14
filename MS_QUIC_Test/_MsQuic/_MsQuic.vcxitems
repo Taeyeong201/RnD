@@ -20,23 +20,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Common.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Framework.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_SessionList.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Stream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Common.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_SessionList.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Framework.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Stream.cpp" />
   </ItemGroup>

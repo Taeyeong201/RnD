@@ -15,19 +15,20 @@ QUIC_STATUS QuicStream::StreamCallback(
 {
 	auto ctx = (QuicStream*)Context;
 	static uint64_t nowCall = 0, lastCall = 0;
-	
+
 	switch (Event->Type) {
 	case QUIC_STREAM_EVENT_START_COMPLETE:
-		printf("[strm][%p] Start Complete\n", Stream->Handle);
+		PLOG_INFO.printf("[strm][%p] Start Complete", Stream->Handle);
 		break;
 	case QUIC_STREAM_EVENT_SEND_SHUTDOWN_COMPLETE:
-		printf("[strm][%p] Send Shutdown Complete\n", Stream->Handle);
+		PLOG_INFO.printf("[strm][%p] Send Shutdown Complete", Stream->Handle);
 		break;
 	case QUIC_STREAM_EVENT_SEND_COMPLETE:
 		//
 		// A previous StreamSend call has completed, and the context is being
 		// returned back to the app.
 		//
+		//PLOG_INFO.printf("[strm][%p] Data sent", Stream->Handle);
 		free(Event->SEND_COMPLETE.ClientContext);
 		//printf("[strm][%p] Data sent\n", Stream->Handle);
 		break;
@@ -35,7 +36,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		// Data was received from the peer on the stream.
 		//
-		printf("[strm][%p] --- Data received\n", Stream->Handle);
+		//PLOG_INFO.printf("[strm][%p] --- Data received", Stream->Handle);
 		//printf("AbsoluteOffset %llu\n", Event->RECEIVE.AbsoluteOffset);
 		//printf("TotalBufferLength %llu\n", Event->RECEIVE.TotalBufferLength);
 		//	printf("BufferCount %u\n", Event->RECEIVE.BufferCount);
@@ -59,7 +60,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 
 		break;
 	case QUIC_STREAM_EVENT_PEER_SEND_SHUTDOWN:
-		printf("[strm][%p] Peer shut down\n", Stream->Handle);
+		PLOG_INFO.printf("[strm][%p] Peer shut down", Stream->Handle);
 		// 정상적인 종료는 Shutdown을 보내줌
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_GRACEFUL);
 		ctx->receiver_.shutdownGetDataFunc();
@@ -69,8 +70,10 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		// The peer aborted its send direction of the stream.
 		//
-		printf("[strm][%p] Peer Send aborted, ", Stream->Handle);
-		StatusPrint(Event->PEER_SEND_ABORTED.ErrorCode);
+		PLOG_INFO.printf("[strm][%p] Peer Send aborted[0x%x], %s",
+			Stream->Handle, Event->PEER_SEND_ABORTED.ErrorCode,
+			StatusPrint(Event->PEER_SEND_ABORTED.ErrorCode)
+		);
 		Stream->Shutdown(Event->PEER_SEND_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_SEND);
 		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
@@ -80,8 +83,11 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		// The peer aborted its send direction of the stream.
 		//
-		printf("[strm][%p] Peer Receive aborted, ", Stream->Handle);
-		StatusPrint(Event->PEER_RECEIVE_ABORTED.ErrorCode);
+		PLOG_INFO.printf("[strm][%p] Peer Receive aborted[0x%x], %s",
+			Stream->Handle, Event->PEER_SEND_ABORTED.ErrorCode,
+			StatusPrint(Event->PEER_RECEIVE_ABORTED.ErrorCode)
+		);
+
 		Stream->Shutdown(Event->PEER_RECEIVE_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_RECEIVE);
 		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
@@ -92,14 +98,14 @@ QUIC_STATUS QuicStream::StreamCallback(
 		// Both directions of the stream have been shut down and MsQuic is done
 		// with the stream. It can now be safely cleaned up.
 		//
-		printf("[strm][%p] All done\n", Stream->Handle);
+		PLOG_INFO.printf("[strm][%p] All done", Stream->Handle);
 
 		ctx->receiver_.stopRecv = true;
 		ctx->receiver_.shutdownGetDataFunc();
 		//Stream->ConnectionShutdown(0);
 		break;
 	default:
-		printf("[strm][%p] Unknown Event %d\n", Stream->Handle, Event->Type);
+		PLOG_INFO.printf("[strm][%p] Unknown Event %d", Stream->Handle, Event->Type);
 		break;
 	}
 
@@ -119,7 +125,7 @@ bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 	if (stream_->Handle) {
 		QUIC_STATUS Status;
 
-		auto packetSize = size + 4;
+		auto packetSize = size + sizeof(DataPayload);
 
 		auto SendBufferRaw = malloc((size_t)(sizeof(QUIC_BUFFER) + packetSize));
 		if (SendBufferRaw == nullptr) {
@@ -235,6 +241,7 @@ bool QuicStream::InitializeReceive()
 
 	if (receiver_.getData(packet)) {
 		packet.data.reset();
+		return true;
 	}
 	else
 		return false;

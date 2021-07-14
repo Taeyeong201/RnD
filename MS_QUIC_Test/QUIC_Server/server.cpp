@@ -9,10 +9,19 @@
 
 #include <thread>
 
+#include <plog/Log.h>
+#include <plog/Init.h>
+#include <plog/Formatters/TxtFormatter.h>
+#include <plog/Appenders/DebugOutputAppender.h>
+
 #include "QUIC_Framework.h"
 
 
 int main() {
+
+	static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
+	plog::init(plog::verbose, &debugOutputAppender);
+
 	if (QUIC_FAILED(QuicFramework::QuicOpen())) {
 		return -1;
 	}

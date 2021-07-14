@@ -8,15 +8,18 @@
 
 #include "QUIC_Common.h"
 
+#define QUEUE 0
+
+#if QUEUE
 #include "blockingconcurrentqueue.h"
 
 using namespace moodycamel;
+#endif
 
-#define QUEUE 0
 
 struct DataPacket {
 	~DataPacket();
-	
+
 	unsigned int size = 0;
 	std::shared_ptr<unsigned char> data;
 };
@@ -35,13 +38,6 @@ public:
 	bool getData(DataPacket& data);
 
 	bool stopRecv = false;
-
-	unsigned long long testime = 0;
-	unsigned long long t1 = 0;
-	unsigned long long t2 = 0;
-	unsigned long long t3 = 0;
-	unsigned long long t4 = 0;
-	unsigned long long t5 = 0;
 
 	void shutdownGetDataFunc();
 private:

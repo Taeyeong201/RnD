@@ -23,7 +23,7 @@ public:
 
 	//Server, Clinet Common
 	QuicStream stream_;
-	 
+
 	//void setStreamList(std::unique_ptr<QuicSessionList> list);
 	int initializeConfig();
 
@@ -74,7 +74,7 @@ private:
 			_Inout_ QUIC_CONNECTION_EVENT* Event
 		);
 
-	
+
 
 	MsQuicAutoAcceptListener* quicListener_ = nullptr;
 	QUIC_CERTIFICATE_FILE crtFile_;
