@@ -1,9 +1,18 @@
+#pragma warning(disable: 28182)
+
 #include "QUIC_Stream.h"
+
+#include "QUIC_StreamManager.h"
 
 #include <iostream>
 
-QuicStream::QuicStream()
+QuicStream::QuicStream() noexcept
 {
+}
+
+QuicStream::QuicStream(const QuicStream& other) noexcept
+{
+	stream_ = other.stream_;
 }
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
@@ -63,6 +72,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		PLOG_INFO.printf("[strm][%p] Peer shut down", Stream->Handle);
 		// 정상적인 종료는 Shutdown을 보내줌
 		Stream->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_GRACEFUL);
+		ctx->brokenStream = true;
 		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		break;
@@ -75,6 +85,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 			StatusPrint(Event->PEER_SEND_ABORTED.ErrorCode)
 		);
 		Stream->Shutdown(Event->PEER_SEND_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_SEND);
+		ctx->brokenStream = true;
 		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		//Stream->ConnectionShutdown(Event->PEER_SEND_ABORTED.ErrorCode);
@@ -89,6 +100,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		);
 
 		Stream->Shutdown(Event->PEER_RECEIVE_ABORTED.ErrorCode, QUIC_STREAM_SHUTDOWN_FLAG_ABORT_RECEIVE);
+		ctx->brokenStream = true;
 		ctx->receiver_.shutdownGetDataFunc();
 		ctx->receiver_.stopRecv = true;
 		//Stream->ConnectionShutdown(Event->PEER_RECEIVE_ABORTED.ErrorCode);
@@ -100,6 +112,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		PLOG_INFO.printf("[strm][%p] All done", Stream->Handle);
 
+		ctx->brokenStream = true;
 		ctx->receiver_.stopRecv = true;
 		ctx->receiver_.shutdownGetDataFunc();
 		//Stream->ConnectionShutdown(0);
@@ -129,7 +142,7 @@ bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 
 		auto SendBufferRaw = malloc((size_t)(sizeof(QUIC_BUFFER) + packetSize));
 		if (SendBufferRaw == nullptr) {
-			printf("SendBuffer allocation failed!\n");
+			PLOG_ERROR.printf("SendBuffer allocation failed!\n");
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
 		}
@@ -147,7 +160,9 @@ bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 		memcpy(payload->buf, buf, size);
 
 		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBufferRaw))) {
-			printf("StreamSend failed, 0x%x!\n", Status);
+			PLOG_ERROR.printf("StreamSend failed, [0x%x], %s",
+				Status, StatusPrint(Status)
+			);
 			free(SendBufferRaw);
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
@@ -168,7 +183,7 @@ bool QuicStream::Send(const char* buf, uint32_t size)
 
 		auto SendBufferRaw = malloc((sizeof(QUIC_BUFFER) + packetSize));
 		if (SendBufferRaw == nullptr) {
-			printf("SendBuffer allocation failed!\n");
+			PLOG_ERROR.printf("SendBuffer allocation failed!\n");
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
 		}
@@ -185,7 +200,9 @@ bool QuicStream::Send(const char* buf, uint32_t size)
 		memcpy(payload->buf, buf, size);
 
 		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBufferRaw))) {
-			printf("StreamSend failed, 0x%x!\n", Status);
+			PLOG_ERROR.printf("StreamSend failed, [0x%x], %s",
+				Status, StatusPrint(Status)
+			);
 			free(SendBufferRaw);
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
@@ -197,17 +214,16 @@ bool QuicStream::Send(const char* buf, uint32_t size)
 	return true;
 }
 
-bool QuicStream::InitializeSend()
+bool QuicStream::InitializeSend(const char* id)
 {
-
 	if (stream_->Handle) {
 		QUIC_STATUS Status;
 
-		auto packetSize = 32;
+		auto packetSize = (strlen(id) + 1) + sizeof(DataPayload);
 
 		auto SendBufferRaw = malloc((sizeof(QUIC_BUFFER) + packetSize));
 		if (SendBufferRaw == nullptr) {
-			printf("SendBuffer allocation failed!\n");
+			PLOG_ERROR << "SendBuffer allocation failed!";
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
 		}
@@ -219,10 +235,14 @@ bool QuicStream::InitializeSend()
 
 		auto payload = (DataPayload*)SendBuffer->Buffer;
 		payload->buf = (uint8_t*)SendBuffer->Buffer + sizeof(DataPayload);
-		payload->size = packetSize - sizeof(DataPayload);
+		payload->size = (strlen(id) + 1);
+
+		memcpy(payload->buf, id, strlen(id) + 1);
 
 		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_START, SendBufferRaw))) {
-			printf("StreamSend failed, 0x%x!\n", Status);
+			PLOG_ERROR.printf("StreamSend failed, [0x%x], %s",
+				Status, StatusPrint(Status)
+			);
 			free(SendBufferRaw);
 			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
 			return false;
@@ -232,17 +252,62 @@ bool QuicStream::InitializeSend()
 		return false;
 
 	return true;
-
 }
+//bool QuicStream::InitializeSend()
+//{
+//
+//	if (stream_->Handle) {
+//		QUIC_STATUS Status;
+//
+//		auto packetSize = 32;
+//
+//		auto SendBufferRaw = malloc((sizeof(QUIC_BUFFER) + packetSize));
+//		if (SendBufferRaw == nullptr) {
+//			PLOG_ERROR << "SendBuffer allocation failed!";
+//			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+//			return false;
+//		}
+//		memset(SendBufferRaw, 0, sizeof(QUIC_BUFFER) + packetSize);
+//
+//		auto SendBuffer = (QUIC_BUFFER*)SendBufferRaw;
+//		SendBuffer->Buffer = (uint8_t*)SendBufferRaw + sizeof(QUIC_BUFFER);
+//		SendBuffer->Length = packetSize;
+//
+//		auto payload = (DataPayload*)SendBuffer->Buffer;
+//		payload->buf = (uint8_t*)SendBuffer->Buffer + sizeof(DataPayload);
+//		payload->size = packetSize - sizeof(DataPayload);
+//
+//		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_START, SendBufferRaw))) {
+//			PLOG_ERROR.printf("StreamSend failed, [0x%x], %s",
+//				Status, StatusPrint(Status)
+//			);
+//			free(SendBufferRaw);
+//			stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT);
+//			return false;
+//		}
+//	}
+//	else
+//		return false;
+//
+//	return true;
+//
+//}
+//
+//bool QuicStream::InitializeReceive()
+//{
+//	DataPacket packet = { 0, };
+//
+//	if (receiver_.getData(packet)) {
+//		packet.data.reset();
+//		return true;
+//	}
+//	else
+//		return false;
+//}
 
-bool QuicStream::InitializeReceive()
+ QuicStream& QuicStream::operator=(QuicStream&& other) noexcept
 {
-	DataPacket packet = { 0, };
+	stream_ = other.stream_;
 
-	if (receiver_.getData(packet)) {
-		packet.data.reset();
-		return true;
-	}
-	else
-		return false;
+	return *this;
 }

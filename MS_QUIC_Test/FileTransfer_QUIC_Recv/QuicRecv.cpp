@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
 	quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
 	//quicFramework.quicSettings_.SetDatagramReceiveEnabled(true);
-
+	quicFramework.streamManager_.initStreamName("main");
 	quicFramework.initializeConfig();
 
 	FILE* fp;
@@ -70,7 +70,8 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	quicFramework.startListener(atoi(argv[1]));
-	quicFramework.stream_.InitializeReceive();
+	quicFramework.streamManager_.WaitForCreateStream();
+	//quicFramework.stream_.InitializeReceive();
 
 	DataPacket data = { 0, };
 
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
 	char buf[BUF_SIZE] = { 0, };
 
 
-	quicFramework.stream_.receiveData(data);
+	quicFramework.streamManager_["main"]->receiveData(data);
 	memcpy(buf, data.data.get(), data.size);
 	file_size = atol(buf);
 	printf("file size : %llu\n", file_size);
@@ -103,7 +104,7 @@ int main(int argc, char** argv) {
 	while (BufferNum != totalBufferNum)
 	{
 		start1 = GetMicroCounter();
-		error = quicFramework.stream_.receiveData(data);
+		error = quicFramework.streamManager_["main"]->receiveData(data);
 		if (!error) {
 			printf("buffer error \n");
 			break;

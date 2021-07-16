@@ -7,10 +7,21 @@
 class QuicStream {
 public:
 	//QuicStream(int id);
-	QuicStream();
+	QuicStream() noexcept;
+	QuicStream(const QuicStream& other) noexcept;
 
 	//int id_;
 	MsQuicStream* stream_ = nullptr;
+
+	bool receiveData(DataPacket& data);
+	bool Send(const uint8_t* buf, uint32_t size);
+	bool Send(const char* buf, uint32_t size);
+
+	//bool InitializeSend();
+	//bool InitializeReceive();
+
+	QuicStream& operator=(QuicStream&& other) noexcept;
+
 
 	static
 		_IRQL_requires_max_(PASSIVE_LEVEL)
@@ -21,18 +32,12 @@ public:
 			_Inout_ QUIC_STREAM_EVENT* Event
 		);
 
-	bool receiveData(DataPacket& data);
-	bool Send(const uint8_t* buf, uint32_t size);
-	bool Send(const char* buf, uint32_t size);
-
-
-	bool InitializeSend();
-	bool InitializeReceive();
-
+	bool InitializeSend(const char* id);
 private:
-	QuicDataReceiver receiver_;
 
-	//void* SendBufferRaw;
+	bool brokenStream = false;
+
+	QuicDataReceiver receiver_;
 };
 
 

@@ -5,7 +5,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Framework.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_Stream.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)QuicStreamManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)QUIC_StreamManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)blockingconcurrentqueue.h" />
@@ -15,6 +15,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_DataReceiver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Framework.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_Stream.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)QuicStreamManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)QUIC_StreamManager.h" />
   </ItemGroup>
 </Project>

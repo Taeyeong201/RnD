@@ -38,11 +38,13 @@ int main() {
 	quicFramework.quicSettings_.KeepAliveIntervalMs = 5000;
 	quicFramework.quicSettings_.IsSet.KeepAliveIntervalMs = TRUE;
 
+	quicFramework.streamManager_.initStreamName("main");
 
 	quicFramework.initializeConfig();
 
 	quicFramework.connection("192.168.0.201", 12155);
-
+	quicFramework.streamManager_.WaitForCreateConnection();
+	printf("connect\n");
 	std::string input_string;
 	while (true)
 	{
@@ -52,12 +54,11 @@ int main() {
 		}
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
-			quicFramework.stream_.receiveData(data);
-
+			quicFramework.streamManager_["main"]->receiveData(data);
 		}
 		else {
-			for (int i = 0; i < 20; i++)
-				quicFramework.stream_.Send(input_string.c_str(), input_string.length());
+			//for (int i = 0; i < 20; i++) {};
+			quicFramework.streamManager_["main"]->Send(input_string.c_str(), input_string.length());
 		}
 	}
 

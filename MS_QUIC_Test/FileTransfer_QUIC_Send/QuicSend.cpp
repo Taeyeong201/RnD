@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 	std::chrono::system_clock::time_point chronostart = std::chrono::system_clock::now();
 
 	_snprintf_s(buf, sizeof(buf), "%llu", file_size);
-	quicFramework.stream_.Send(buf, BUF_SIZE);
+	quicFramework.streamManager_["main"]->Send(buf, BUF_SIZE);
 	printf("send first data : %llu\n", file_size);
 
 	start = GetMicroCounter();
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 	while ((sendBytes = (int)fread(buf, sizeof(char), sizeof(buf), fp)) > 0)
 	{
 		start1 = GetMicroCounter();
-		quicFramework.stream_.Send(buf, sendBytes);
+		quicFramework.streamManager_["main"]->Send(buf, sendBytes);
 		end1 = GetMicroCounter();
 		testset += end1 - start1;
 

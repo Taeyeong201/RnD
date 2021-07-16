@@ -50,7 +50,9 @@ int main() {
 
 	std::string input_string;
 
-	quicFramework.stream_.InitializeReceive();
+	quicFramework.streamManager_.WaitForCreateStream();
+	//quicFramework.stream_.InitializeReceive();
+	printf("connect\n");
 
 	while (true)
 	{
@@ -60,12 +62,11 @@ int main() {
 		}
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
-			quicFramework.stream_.receiveData(data);
-			
+			quicFramework.streamManager_["main"]->receiveData(data);
 		}
 		else {
 			//for (int i = 0; i < 20; i++)
-				quicFramework.stream_.Send(input_string.c_str(), input_string.length());
+				//quicFramework.stream_.Send(input_string.c_str(), input_string.length());
 		}
 	}
 	printf("Press Enter to exit.\n\n");

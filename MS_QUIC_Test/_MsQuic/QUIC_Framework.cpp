@@ -1,3 +1,5 @@
+#pragma warning(disable: 28182)
+
 #include "QUIC_Framework.h"
 
 #include <iostream>
@@ -179,7 +181,6 @@ int QuicFramework::startListener(int port)
 	QuicAddrSetPort(&addr, port);
 
 	if (QUIC_FAILED(Status = quicListener_->Start(alpn_, &addr))) {
-
 		PLOG_ERROR.printf("[0x%x] Listener Start Failed, %s",
 			Status,
 			StatusPrint(Status));
@@ -217,15 +218,9 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	ctx->quicSessions_->newSession(Event->PEER_STREAM_STARTED.Stream);
 		//else
 		//	return QUIC_STATUS_OUT_OF_MEMORY;
-		if (ctx) {
-			ctx->stream_.stream_ =
-				new(std::nothrow) MsQuicStream(
-					Event->PEER_STREAM_STARTED.Stream,
-					CleanUpAutoDelete,
-					QuicStream::StreamCallback,
-					&ctx->stream_
-				);
-		}
+
+		ctx->streamManager_.EventPeerStreamStarted(Event->PEER_STREAM_STARTED.Stream);
+
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
 		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {
@@ -252,10 +247,10 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
-		if (ctx) {
-			ctx->brokenConnection = true;
-			ctx->stream_.stream_ = nullptr;
-		}
+
+		ctx->brokenConnection = true;
+		ctx->streamManager_.DeleteAllStream();
+
 		break;
 #ifdef _DEBUG
 	case QUIC_CONNECTION_EVENT_RESUMED:
@@ -286,19 +281,9 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 	switch (Event->Type) {
 	case QUIC_CONNECTION_EVENT_CONNECTED:
 		PLOG_INFO.printf("[conn][%p] Connected", Connection->Handle);
+		ctx->quicConnection_ = Connection;
+		ctx->streamManager_.EventConnected(Connection);
 
-		if (ctx) {
-			ctx->quicConnection_ = Connection;
-			ctx->stream_.stream_ =
-				new(std::nothrow) MsQuicStream(
-					*Connection,
-					QUIC_STREAM_OPEN_FLAG_NONE,
-					CleanUpAutoDelete,
-					QuicStream::StreamCallback,
-					&ctx->stream_
-				);
-			ctx->stream_.InitializeSend();
-		}
 
 		break;
 	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
@@ -307,14 +292,8 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 		//	ctx->quicSessions_->newSession(Event->PEER_STREAM_STARTED.Stream);
 		//else
 		//	return QUIC_STATUS_OUT_OF_MEMORY;
-		if (ctx) {
-			ctx->stream_.stream_ =
-				new(std::nothrow) MsQuicStream(
-					Event->PEER_STREAM_STARTED.Stream,
-					CleanUpAutoDelete,
-					QuicStream::StreamCallback,
-					&ctx->stream_);
-		}
+		ctx->streamManager_.EventPeerStreamStarted(Event->PEER_STREAM_STARTED.Stream);
+
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
 		if (Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status == QUIC_STATUS_CONNECTION_IDLE) {
@@ -341,10 +320,9 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 		//	}
 		//	ctx->quicSessions_->sessionListMap_.clear();
 		//}
-		if (ctx) {
-			ctx->brokenConnection = true;
-			ctx->stream_.stream_ = nullptr;
-		}
+		ctx->brokenConnection = true;
+		ctx->streamManager_.DeleteAllStream();
+
 		break;
 #ifdef DEBUG_
 	case QUIC_CONNECTION_EVENT_RESUMED:

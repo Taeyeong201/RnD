@@ -7,10 +7,9 @@
 
 #include "QUIC_Common.h"
 
-#include "QUIC_Stream.h"
+#include "QUIC_StreamManager.h"
 
-class QuicFramework
-{
+class QuicFramework {
 public:
 	QuicFramework();
 	QuicFramework(const std::string form);
@@ -22,7 +21,9 @@ public:
 	MsQuicSettings quicSettings_;
 
 	//Server, Clinet Common
-	QuicStream stream_;
+	//QuicStream stream_;
+
+	QuicStreamManager streamManager_;
 
 	//void setStreamList(std::unique_ptr<QuicSessionList> list);
 	int initializeConfig();
