@@ -75,7 +75,7 @@ int QuicFramework::QuicClose()
 
 int QuicFramework::initializeConfig()
 {
-	QUIC_STATUS Status;
+	QUIC_STATUS Status = QUIC_STATUS_SUCCESS;
 
 	quicRegist_ = new MsQuicRegistration();
 	if (!quicRegist_->IsValid()) {
@@ -229,13 +229,13 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 		else {
 			PLOG_INFO.printf("[conn][%p] Shut down by transport[0x%x], %s",
 				Connection->Handle, Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status,
-				StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status));
+				StatusPrint((QUIC_STATUS)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status));
 		}
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_PEER:
 		PLOG_INFO.printf("[conn][%p] Shut down by peer[0x%x], %s ",
 			Connection->Handle, Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode,
-			StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode)
+			StatusPrint((QUIC_STATUS)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode)
 		);
 		break;
 
@@ -302,13 +302,13 @@ QUIC_STATUS QuicFramework::ClientConnCallback(
 		else {
 			PLOG_INFO.printf("[conn][%p] Shut down by transport[0x%x], %s",
 				Connection->Handle, Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status,
-				StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status));
+				StatusPrint((QUIC_STATUS)Event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status));
 		}
 		break;
 	case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_PEER:
 		PLOG_INFO.printf("[conn][%p] Shut down by peer[0x%x], %s ",
 			Connection->Handle, Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode,
-			StatusPrint((unsigned long long)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode)
+			StatusPrint((QUIC_STATUS)Event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode)
 		);
 		break;
 

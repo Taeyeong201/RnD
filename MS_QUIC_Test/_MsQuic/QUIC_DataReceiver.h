@@ -33,6 +33,7 @@ class QuicDataReceiver
 {
 public:
 	QuicDataReceiver();
+	//QuicDataReceiver(const QuicDataReceiver& other) noexcept;
 
 	void queueBuffer(uint8_t* buffer, unsigned int size);
 	bool getData(DataPacket& data);
@@ -40,6 +41,8 @@ public:
 	bool stopRecv = false;
 
 	void shutdownGetDataFunc();
+
+	//QuicDataReceiver& operator=(QuicDataReceiver&& other) noexcept;
 private:
 	bool remainingPacket(uint8_t* packetBuf, uint32_t remainPacketSize);
 
@@ -48,7 +51,7 @@ private:
 	BlockingConcurrentQueue<DataPacket> remainQueue_;
 #else
 	std::deque<DataPacket> deque_;
-	std::mutex recvMutex;
+	std::unique_ptr<std::mutex> recvMutex;
 #endif
 };
 

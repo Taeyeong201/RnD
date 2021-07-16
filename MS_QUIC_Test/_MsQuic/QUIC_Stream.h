@@ -8,7 +8,7 @@ class QuicStream {
 public:
 	//QuicStream(int id);
 	QuicStream() noexcept;
-	QuicStream(const QuicStream& other) noexcept;
+	//QuicStream(const QuicStream& other) noexcept;
 
 	//int id_;
 	MsQuicStream* stream_ = nullptr;
@@ -20,7 +20,7 @@ public:
 	//bool InitializeSend();
 	//bool InitializeReceive();
 
-	QuicStream& operator=(QuicStream&& other) noexcept;
+	//QuicStream& operator=(QuicStream&& other) noexcept;
 
 
 	static

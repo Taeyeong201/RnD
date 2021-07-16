@@ -7,13 +7,15 @@
 #include <iostream>
 
 QuicStream::QuicStream() noexcept
+	: receiver_()
 {
 }
 
-QuicStream::QuicStream(const QuicStream& other) noexcept
-{
-	stream_ = other.stream_;
-}
+//QuicStream::QuicStream(const QuicStream& other) noexcept
+//	: receiver_(other.receiver_)
+//{
+//	stream_ = other.stream_;
+//}
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
 _Function_class_(QUIC_STREAM_CALLBACK)
@@ -56,6 +58,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//	printf("%.2X", (uint8_t)Event->RECEIVE.Buffers->Buffer[i]);
 		//}
 		//printf("\n");
+		PLOG_INFO.printf("[strm][%p] QUIC_STREAM_EVENT_RECEIVE", Stream->Handle);
 
 		for (uint32_t i = 0; i < Event->RECEIVE.BufferCount; i++)
 			ctx->receiver_.queueBuffer(Event->RECEIVE.Buffers[i].Buffer, Event->RECEIVE.Buffers[i].Length);
@@ -305,9 +308,9 @@ bool QuicStream::InitializeSend(const char* id)
 //		return false;
 //}
 
- QuicStream& QuicStream::operator=(QuicStream&& other) noexcept
-{
-	stream_ = other.stream_;
-
-	return *this;
-}
+// QuicStream& QuicStream::operator=(QuicStream&& other) noexcept
+//{
+//	stream_ = other.stream_;
+//	receiver_ = std::move(other.receiver_);
+//	return *this;
+//}

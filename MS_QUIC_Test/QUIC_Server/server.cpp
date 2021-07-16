@@ -12,15 +12,16 @@
 #include <plog/Log.h>
 #include <plog/Init.h>
 #include <plog/Formatters/TxtFormatter.h>
-#include <plog/Appenders/DebugOutputAppender.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
+
 
 #include "QUIC_Framework.h"
 
 
 int main() {
 
-	static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
-	plog::init(plog::verbose, &debugOutputAppender);
+	static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+	plog::init(plog::verbose, &consoleAppender);
 
 	if (QUIC_FAILED(QuicFramework::QuicOpen())) {
 		return -1;
@@ -48,6 +49,7 @@ int main() {
 	quicFramework.initializeConfig();
 	quicFramework.startListener(12155);
 
+	std::string selectStream("main");
 	std::string input_string;
 
 	quicFramework.streamManager_.WaitForCreateStream();
@@ -62,11 +64,23 @@ int main() {
 		}
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
-			quicFramework.streamManager_["main"]->receiveData(data);
+			quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
+			printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+		}
+		else if (input_string.compare("select") == 0) {
+			std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
+			int i = 0;
+			for (auto elm : streamList) {
+				printf("%d : %s\n", i++, elm.c_str());
+			}
+			std::cin >> input_string;
+			i = stoi(input_string);
+			std::string select = streamList.at(i);
+			printf("Select Stream Name : %s\n", select.c_str());
+			selectStream = select.c_str();
 		}
 		else {
-			//for (int i = 0; i < 20; i++)
-				//quicFramework.stream_.Send(input_string.c_str(), input_string.length());
+			quicFramework.streamManager_[selectStream.c_str()]->Send(input_string.c_str(), input_string.length() + 1);
 		}
 	}
 	printf("Press Enter to exit.\n\n");

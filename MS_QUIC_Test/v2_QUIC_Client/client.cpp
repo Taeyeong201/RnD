@@ -9,14 +9,14 @@
 #include <plog/Log.h>
 #include <plog/Init.h>
 #include <plog/Formatters/TxtFormatter.h>
-#include <plog/Appenders/DebugOutputAppender.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
 
 #include "QUIC_Framework.h"
 
 int main() {
 
-	static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
-	plog::init(plog::verbose, &debugOutputAppender);
+	static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+	plog::init(plog::verbose, &consoleAppender);
 
 	if (QUIC_FAILED(QuicFramework::QuicOpen())) {
 		return -1;
@@ -44,6 +44,9 @@ int main() {
 
 	quicFramework.connection("192.168.0.201", 12155);
 	quicFramework.streamManager_.WaitForCreateConnection();
+
+	std::string selectStream("main");
+
 	printf("connect\n");
 	std::string input_string;
 	while (true)
@@ -54,11 +57,15 @@ int main() {
 		}
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
-			quicFramework.streamManager_["main"]->receiveData(data);
+			quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
+			printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+		}
+		else if (input_string.compare("new") == 0) {
+
 		}
 		else {
 			//for (int i = 0; i < 20; i++) {};
-			quicFramework.streamManager_["main"]->Send(input_string.c_str(), input_string.length());
+			quicFramework.streamManager_["main"]->Send(input_string.c_str(), input_string.length() + 1);
 		}
 	}
 

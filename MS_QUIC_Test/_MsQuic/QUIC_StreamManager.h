@@ -21,6 +21,8 @@ public:
 	bool WaitForCreateStream();
 	bool WaitForCreateConnection();
 
+	std::vector<std::string> getStreamList();
+
 	QuicStream* operator[](const char* key);
 private:
 	static
@@ -40,13 +42,12 @@ private:
 	void DeleteAllStream();
 
 	// Stream Use
-	void SetStreamName(const char* name, MsQuicStream* stream);
-	void removeTempStream(MsQuicStream* nativeStream);
-	QuicStream* findTempStream(MsQuicStream* nativeStream);
+	void SetStreamName(const char* name, std::shared_ptr<QuicStream> stream);
+	std::shared_ptr<QuicStream> findTempStream(MsQuicStream* nativeStream);
 
-	std::unordered_map<std::string, QuicStream> streamMap_;
-	std::vector<QuicStream> tmpStreams;
-	
+	std::unordered_map<std::string, std::shared_ptr<QuicStream>> streamMap_;
+	std::vector<std::shared_ptr<QuicStream>> tmpStreams;
+
 	std::mutex mutex_;
 	std::condition_variable cv_;
 
@@ -64,7 +65,7 @@ inline void QuicStreamManager::initStreamName(String name, Strings && ...strings
 	if (streamMap_.count(name) > 0)
 		PLOG_WARNING << "\"" << name << "\" Already Same Name! Override QuicStream";
 
-	streamMap_[name] = std::move(QuicStream());
+	streamMap_[name] = std::make_shared<QuicStream>();
 
 	initStreamName(strings...);
 }

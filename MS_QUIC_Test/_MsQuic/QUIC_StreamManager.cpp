@@ -1,3 +1,5 @@
+#pragma warning(disable: 28182)
+
 #include "QUIC_StreamManager.h"
 
 QuicStreamManager::QuicStreamManager()
@@ -18,6 +20,8 @@ bool QuicStreamManager::WaitForCreateStream()
 	std::unique_lock<std::mutex> lk(mutex_);
 	cv_.wait(lk, [&] {return (streamMap_.size() > streamCount) || brokenConnection; });
 	lk.unlock();
+
+
 	if (brokenConnection) {
 		return false;
 	}
@@ -39,82 +43,89 @@ bool QuicStreamManager::WaitForCreateConnection()
 	return true;
 }
 
-void QuicStreamManager::SetStreamName(const char* name, MsQuicStream* stream)
+std::vector<std::string> QuicStreamManager::getStreamList()
+{
+	std::vector<std::string> tmp;
+	for (auto it = streamMap_.begin(); it != streamMap_.end(); it++) {
+		tmp.push_back(it->first);
+	}
+
+	return std::move(tmp);
+}
+
+void QuicStreamManager::SetStreamName(const char* name, std::shared_ptr<QuicStream> stream)
 {
 	std::string streamName(name);
 
 	if (streamMap_.count(streamName.c_str()) > 0)
 		PLOG_WARNING << "\"" << streamName.c_str() << "\" Already Same Name! Override QuicStream";
 
-	QuicStream tmp;
-	stream->Callback = QuicStream::StreamCallback;
-	stream->Context = &tmp;
-	tmp.stream_ = stream;
-	mutex_.lock();
-	streamMap_[streamName.c_str()] = std::move(tmp);
-	mutex_.unlock();
+	stream->stream_->Callback = QuicStream::StreamCallback;
+	stream->stream_->Context = stream.get();
+	{
+		std::lock_guard<std::mutex> lg(mutex_);
+		streamMap_[streamName.c_str()] = stream;
+	}
 
-	removeTempStream(stream);
+	//removeTempStream(stream);
 	cv_.notify_one();
 }
 
 void QuicStreamManager::EventPeerStreamStarted(HQUIC handle)
 {
-	QuicStream tmp;
-	tmp.stream_ = new(std::nothrow) MsQuicStream(
+	std::unique_ptr<QuicStream> tmp = std::make_unique<QuicStream>();
+	tmp->stream_ = new(std::nothrow) MsQuicStream(
 		handle,
 		CleanUpAutoDelete,
 		QuicStreamManager::TempStreamCallback,
 		this);
-	tmpStreams.push_back(tmp);
+
+	//tmp->stream_ = new(std::nothrow) MsQuicStream(
+	//	handle,
+	//	CleanUpAutoDelete,
+	//	QuicStream::StreamCallback,
+	//	tmp.get());
+	tmpStreams.push_back(std::move(tmp));
 }
 
 void QuicStreamManager::EventConnected(MsQuicConnection* _connection)
 {
-	mutex_.lock();
-	this->connection_ = _connection;
-	mutex_.unlock();
+	{
+		std::lock_guard<std::mutex> lg(mutex_);
+		this->connection_ = _connection;
+	}
 	if (streamMap_.size() > 0)
 		for (auto it = streamMap_.begin(); it != streamMap_.end(); it++) {
-			it->second.stream_ =
+			it->second->stream_ =
 				new(std::nothrow) MsQuicStream(
 					*connection_,
 					QUIC_STREAM_OPEN_FLAG_NONE,
 					CleanUpAutoDelete,
 					QuicStream::StreamCallback,
-					&it->second
+					it->second.get()
 				);
-			it->second.InitializeSend(it->first.c_str());
+			it->second->InitializeSend(it->first.c_str());
 		}
 
 	cv_.notify_one();
 }
 
-QuicStream* QuicStreamManager::findTempStream(MsQuicStream* nativeStream)
+std::shared_ptr<QuicStream> QuicStreamManager::findTempStream(MsQuicStream* nativeStream)
 {
 	for (std::vector<int>::size_type i = 0; i < tmpStreams.size(); i++) {
-		if (tmpStreams[i].stream_ == nativeStream) {
-			auto tmp = &tmpStreams[i];
-			return tmp;
+		if (tmpStreams[i]->stream_ == nativeStream) {
+			auto tmp = std::move(tmpStreams[i]);
+			tmpStreams.erase(tmpStreams.begin() + i);
+			return std::move(tmp);
 		}
 	}
 	return nullptr;
 }
 
-void QuicStreamManager::removeTempStream(MsQuicStream* nativeStream)
-{
-	for (std::vector<int>::size_type i = 0; i < tmpStreams.size(); i++) {
-		if (tmpStreams[i].stream_ == nativeStream) {
-			tmpStreams.erase(tmpStreams.begin() + i);
-			break;
-		}
-	}
-}
-
 QuicStream* QuicStreamManager::operator[](const char* key)
 {
 	if (streamMap_.count(key) > 0)
-		return &streamMap_[key];
+		return streamMap_[key].get();
 	else
 		return nullptr;
 }
@@ -127,8 +138,8 @@ QUIC_STATUS QuicStreamManager::TempStreamCallback(
 	_In_opt_ void* Context,
 	_Inout_ QUIC_STREAM_EVENT* Event)
 {
-	auto ctx = (QuicStreamManager*)Context;
-	QuicStream* streamCtx = ctx->findTempStream(Stream);
+	auto managerCtx = (QuicStreamManager*)Context;
+	auto streamCtx = managerCtx->findTempStream(Stream);
 	char buf[1024] = { 0, };
 
 	if (streamCtx == nullptr) {
@@ -156,11 +167,13 @@ QUIC_STATUS QuicStreamManager::TempStreamCallback(
 		//
 		// Data was received from the peer on the stream.
 		//
+		PLOG_INFO.printf("[strm][%p] QUIC_STREAM_EVENT_RECEIVE", Stream->Handle);
+
 		auto payload = (DataPayload*)Event->RECEIVE.Buffers[0].Buffer;
 		auto payloadBuf = (uint8_t*)Event->RECEIVE.Buffers[0].Buffer + sizeof(DataPayload);
 		memcpy(buf, payloadBuf, payload->size);
 
-		ctx->SetStreamName(buf, Stream);
+		managerCtx->SetStreamName(buf, std::move(streamCtx));
 	}
 	break;
 	case QUIC_STREAM_EVENT_IDEAL_SEND_BUFFER_SIZE:
@@ -196,7 +209,13 @@ QUIC_STATUS QuicStreamManager::TempStreamCallback(
 		// with the stream. It can now be safely cleaned up.
 		//
 		PLOG_INFO.printf("[strm][%p] All done", Stream->Handle);
-		ctx->removeTempStream(Stream);
+
+		for (std::vector<int>::size_type i = 0; i < managerCtx->tmpStreams.size(); i++) {
+			if (managerCtx->tmpStreams[i] == streamCtx) {
+				managerCtx->tmpStreams.erase(managerCtx->tmpStreams.begin() + i);
+				break;
+			}
+		}
 		break;
 	default:
 		PLOG_INFO.printf("[strm][%p] Unknown Event %d", Stream->Handle, Event->Type);

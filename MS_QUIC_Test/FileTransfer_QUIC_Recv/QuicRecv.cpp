@@ -11,7 +11,7 @@
 #include <plog/Log.h>
 #include <plog/Init.h>
 #include <plog/Formatters/TxtFormatter.h>
-#include <plog/Appenders/DebugOutputAppender.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
 
 #include "QUIC_Framework.h"
 
@@ -39,8 +39,8 @@ u64 GetMicroCounter()
 
 int main(int argc, char** argv) {
 	
-	static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
-	plog::init(plog::verbose, &debugOutputAppender);
+	static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+	plog::init(plog::verbose, &consoleAppender);
 
 	if (argc != 3) {
 		printf("Command parameter does not right.\n");
