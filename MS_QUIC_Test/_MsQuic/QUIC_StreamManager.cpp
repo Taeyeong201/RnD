@@ -13,6 +13,43 @@ void QuicStreamManager::DeleteAllStream()
 	streamCount = 0;
 }
 
+void QuicStreamManager::NewStream(const char* name)
+{
+	if (!brokenConnection) {
+		if (streamMap_.count(name) > 0)
+			PLOG_WARNING << "\"" << name << "\" Already Same Name! Override QuicStream";
+
+		streamMap_[name] = std::make_shared<QuicStream>(name);
+		streamMap_[name]->RegistDeleteCallback(
+			std::bind(&QuicStreamManager::DeleteStream, this, std::placeholders::_1)
+		);
+		streamMap_[name]->stream_ =
+			new(std::nothrow) MsQuicStream(
+				*connection_,
+				QUIC_STREAM_OPEN_FLAG_NONE,
+				CleanUpAutoDelete,
+				QuicStream::StreamCallback,
+				streamMap_[name].get()
+			);
+		streamMap_[name]->stream_->Start();
+		//if (!streamMap_[name]->InitializeSend(name)) {
+		//	PLOG_ERROR << "init send failed";
+		//};
+	}
+}
+
+void QuicStreamManager::DeleteStream(const char* name)
+{
+	std::string _name(name);
+	if (!streamMap_[name]->isBroken()) {
+		streamMap_[name]->StopStream();
+	}
+	else {
+		streamMap_.erase(name);
+	}
+	PLOG_INFO << "Delete Stream : " << _name.c_str();
+}
+
 bool QuicStreamManager::WaitForCreateStream()
 {
 	PLOG_INFO << "Waiting for create stream";
@@ -53,7 +90,7 @@ std::vector<std::string> QuicStreamManager::getStreamList()
 	return std::move(tmp);
 }
 
-void QuicStreamManager::SetStreamName(const char* name, std::shared_ptr<QuicStream> stream)
+void QuicStreamManager::SetPeerStreamName(const char* name, std::shared_ptr<QuicStream> stream)
 {
 	std::string streamName(name);
 
@@ -65,6 +102,10 @@ void QuicStreamManager::SetStreamName(const char* name, std::shared_ptr<QuicStre
 	{
 		std::lock_guard<std::mutex> lg(mutex_);
 		streamMap_[streamName.c_str()] = stream;
+		streamMap_[streamName.c_str()]->id_ = streamName.c_str();
+		streamMap_[streamName.c_str()]->RegistDeleteCallback(
+			std::bind(&QuicStreamManager::DeleteStream, this, std::placeholders::_1)
+		);
 	}
 
 	//removeTempStream(stream);
@@ -73,7 +114,7 @@ void QuicStreamManager::SetStreamName(const char* name, std::shared_ptr<QuicStre
 
 void QuicStreamManager::EventPeerStreamStarted(HQUIC handle)
 {
-	std::unique_ptr<QuicStream> tmp = std::make_unique<QuicStream>();
+	std::shared_ptr<QuicStream> tmp = std::make_shared<QuicStream>();
 	tmp->stream_ = new(std::nothrow) MsQuicStream(
 		handle,
 		CleanUpAutoDelete,
@@ -104,7 +145,14 @@ void QuicStreamManager::EventConnected(MsQuicConnection* _connection)
 					QuicStream::StreamCallback,
 					it->second.get()
 				);
-			it->second->InitializeSend(it->first.c_str());
+			it->second->stream_->Start();
+			it->second->RegistDeleteCallback(
+				std::bind(&QuicStreamManager::DeleteStream, this, std::placeholders::_1)
+			);
+			//if (!it->second->InitializeSend(it->first.c_str())) {
+			//	PLOG_ERROR << "init send failed";
+			//};
+			Sleep(1);
 		}
 
 	cv_.notify_one();
@@ -173,7 +221,7 @@ QUIC_STATUS QuicStreamManager::TempStreamCallback(
 		auto payloadBuf = (uint8_t*)Event->RECEIVE.Buffers[0].Buffer + sizeof(DataPayload);
 		memcpy(buf, payloadBuf, payload->size);
 
-		managerCtx->SetStreamName(buf, std::move(streamCtx));
+		managerCtx->SetPeerStreamName(buf, std::move(streamCtx));
 	}
 	break;
 	case QUIC_STREAM_EVENT_IDEAL_SEND_BUFFER_SIZE:

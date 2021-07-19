@@ -38,7 +38,7 @@ int main() {
 	quicFramework.quicSettings_.KeepAliveIntervalMs = 5000;
 	quicFramework.quicSettings_.IsSet.KeepAliveIntervalMs = TRUE;
 
-	quicFramework.streamManager_.initStreamName("main");
+	quicFramework.streamManager_.initStreamName("main", "sub1");
 
 	quicFramework.initializeConfig();
 
@@ -60,12 +60,38 @@ int main() {
 			quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
 			printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
 		}
+		else if (input_string.compare("select") == 0) {
+			std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
+			int i = 0;
+			for (auto elm : streamList) {
+				printf("%d : %s\n", i++, elm.c_str());
+			}
+			std::cin >> input_string;
+			i = stoi(input_string);
+			std::string select = streamList.at(i);
+			printf("Select Stream Name : %s\n", select.c_str());
+			selectStream = select.c_str();
+		}
 		else if (input_string.compare("new") == 0) {
-
+			printf("new stream : ");
+			std::cin >> input_string;
+			quicFramework.streamManager_.NewStream(input_string.c_str());
+		}
+		else if (input_string.compare("delete") == 0) {
+			std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
+			int i = 0;
+			for (auto elm : streamList) {
+				printf("%d : %s\n", i++, elm.c_str());
+			}
+			std::cin >> input_string;
+			i = stoi(input_string);
+			std::string select = streamList.at(i);
+			quicFramework.streamManager_.DeleteStream(select.c_str());
+			//printf("Delete Stream Name : %s\n", select.c_str());
 		}
 		else {
 			//for (int i = 0; i < 20; i++) {};
-			quicFramework.streamManager_["main"]->Send(input_string.c_str(), input_string.length() + 1);
+			quicFramework.streamManager_[selectStream.c_str()]->Send(input_string.c_str(), input_string.length() + 1);
 		}
 	}
 

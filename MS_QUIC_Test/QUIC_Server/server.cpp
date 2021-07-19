@@ -32,7 +32,7 @@ int main() {
 	quicFramework.quicSettings_.SetIdleTimeoutMs(13000);
 	quicFramework.quicSettings_.SetServerResumptionLevel(QUIC_SERVER_RESUME_AND_ZERORTT);
 	quicFramework.quicSettings_.SetDisconnectTimeoutMs(1000);
-	quicFramework.quicSettings_.SetPeerBidiStreamCount(1);
+	quicFramework.quicSettings_.SetPeerBidiStreamCount(5);
 
 
 	//quicFramework.quicSettings_;

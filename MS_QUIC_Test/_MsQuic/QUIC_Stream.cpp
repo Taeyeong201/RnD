@@ -10,6 +10,10 @@ QuicStream::QuicStream() noexcept
 	: receiver_()
 {
 }
+QuicStream::QuicStream(std::string id) noexcept
+	: receiver_(), id_(id)
+{
+}
 
 //QuicStream::QuicStream(const QuicStream& other) noexcept
 //	: receiver_(other.receiver_)
@@ -30,6 +34,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 	switch (Event->Type) {
 	case QUIC_STREAM_EVENT_START_COMPLETE:
 		PLOG_INFO.printf("[strm][%p] Start Complete", Stream->Handle);
+		ctx->InitializeSend(ctx->id_.c_str());
 		break;
 	case QUIC_STREAM_EVENT_SEND_SHUTDOWN_COMPLETE:
 		PLOG_INFO.printf("[strm][%p] Send Shutdown Complete", Stream->Handle);
@@ -41,7 +46,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		//PLOG_INFO.printf("[strm][%p] Data sent", Stream->Handle);
 		free(Event->SEND_COMPLETE.ClientContext);
-		//printf("[strm][%p] Data sent\n", Stream->Handle);
+		printf("[strm][%p] Data sent\n", Stream->Handle);
 		break;
 	case QUIC_STREAM_EVENT_RECEIVE:
 		//
@@ -118,6 +123,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		ctx->brokenStream = true;
 		ctx->receiver_.stopRecv = true;
 		ctx->receiver_.shutdownGetDataFunc();
+		ctx->deleteCallback(ctx->id_.c_str());
 		//Stream->ConnectionShutdown(0);
 		break;
 	default:
@@ -130,7 +136,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 
 bool QuicStream::receiveData(DataPacket& data)
 {
-	if (stream_->Handle) {
+	if (!brokenStream) {
 		if (receiver_.getData(data)) return true;
 	}
 	return false;
@@ -217,6 +223,27 @@ bool QuicStream::Send(const char* buf, uint32_t size)
 	return true;
 }
 
+void QuicStream::RegistDeleteCallback(std::function<void(const char*)> callback)
+{
+	deleteCallback = callback;
+}
+
+bool QuicStream::StopStream()
+{
+	QUIC_STATUS Status;
+	brokenStream = true;
+	if (stream_->Handle) {
+		if (QUIC_FAILED(Status = stream_->Shutdown(0, QUIC_STREAM_SHUTDOWN_FLAG_ABORT))) {
+			PLOG_ERROR.printf("Stream Shutdown failed, [0x%x], %s",
+				Status, StatusPrint(Status)
+			);
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool QuicStream::InitializeSend(const char* id)
 {
 	if (stream_->Handle) {
@@ -242,7 +269,7 @@ bool QuicStream::InitializeSend(const char* id)
 
 		memcpy(payload->buf, id, strlen(id) + 1);
 
-		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_START, SendBufferRaw))) {
+		if (QUIC_FAILED(Status = stream_->Send(SendBuffer, 1, QUIC_SEND_FLAG_NONE, SendBufferRaw))) {
 			PLOG_ERROR.printf("StreamSend failed, [0x%x], %s",
 				Status, StatusPrint(Status)
 			);
@@ -251,10 +278,18 @@ bool QuicStream::InitializeSend(const char* id)
 			return false;
 		}
 	}
-	else
+	else {
+		PLOG_ERROR.printf("Init StreamSend failed, [0x%x], %s",
+			stream_->GetInitStatus(), StatusPrint(stream_->GetInitStatus())
+		);
 		return false;
+	}
 
 	return true;
+}
+bool QuicStream::isBroken()
+{
+	return brokenStream;
 }
 //bool QuicStream::InitializeSend()
 //{
