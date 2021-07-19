@@ -57,8 +57,17 @@ int main() {
 		}
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
-			quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
-			printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+			try {
+				quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
+				printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+			}
+			catch (std::exception& error) {
+				std::cout << "null stream" << std::endl;
+				std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
+				std::string ch = streamList.at(0);
+				selectStream = ch;
+				std::cout << "changed stream : " << selectStream << std::endl;
+			}
 		}
 		else if (input_string.compare("select") == 0) {
 			std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
@@ -93,8 +102,16 @@ int main() {
 
 		}
 		else {
-			//for (int i = 0; i < 20; i++) {};
-			quicFramework.streamManager_[selectStream.c_str()]->Send(input_string.c_str(), input_string.length() + 1);
+			try {
+				quicFramework.streamManager_[selectStream.c_str()]->Send(input_string.c_str(), input_string.length() + 1);
+			}
+			catch (std::exception& error) {
+				std::cout << "null stream" << std::endl;
+				std::vector<std::string> streamList = quicFramework.streamManager_.getStreamList();
+				std::string ch = streamList.at(0);
+				selectStream = ch;
+				std::cout << "changed stream : " << selectStream << std::endl;
+			}
 		}
 	}
 

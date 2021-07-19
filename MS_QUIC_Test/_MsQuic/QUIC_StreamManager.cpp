@@ -178,7 +178,7 @@ QuicStream* QuicStreamManager::operator[](const char* key)
 	if (streamMap_.count(key) > 0)
 		return streamMap_[key].get();
 	else
-		return nullptr;
+		throw std::exception("Not Found Stream");
 }
 
 
@@ -218,7 +218,7 @@ QUIC_STATUS QuicStreamManager::TempStreamCallback(
 		//
 		// Data was received from the peer on the stream.
 		//
-		PLOG_INFO.printf("[strm][%p] QUIC_STREAM_EVENT_RECEIVE", Stream->Handle);
+		PLOG_INFO.printf("[strm][%p] Get New Stream Name", Stream->Handle);
 
 		auto payload = (DataPayload*)Event->RECEIVE.Buffers[0].Buffer;
 		auto payloadBuf = (uint8_t*)Event->RECEIVE.Buffers[0].Buffer + sizeof(DataPayload);

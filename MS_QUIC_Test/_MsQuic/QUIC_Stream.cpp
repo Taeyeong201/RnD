@@ -46,7 +46,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//
 		//PLOG_INFO.printf("[strm][%p] Data sent", Stream->Handle);
 		free(Event->SEND_COMPLETE.ClientContext);
-		printf("[strm][%p] Data sent\n", Stream->Handle);
+		//printf("[strm][%p] Data sent\n", Stream->Handle);
 		break;
 	case QUIC_STREAM_EVENT_RECEIVE:
 		//
@@ -63,7 +63,7 @@ QUIC_STATUS QuicStream::StreamCallback(
 		//	printf("%.2X", (uint8_t)Event->RECEIVE.Buffers->Buffer[i]);
 		//}
 		//printf("\n");
-		PLOG_INFO.printf("[strm][%p] QUIC_STREAM_EVENT_RECEIVE", Stream->Handle);
+		//PLOG_INFO.printf("[strm][%p] QUIC_STREAM_EVENT_RECEIVE", Stream->Handle);
 
 		for (uint32_t i = 0; i < Event->RECEIVE.BufferCount; i++)
 			ctx->receiver_.queueBuffer(Event->RECEIVE.Buffers[i].Buffer, Event->RECEIVE.Buffers[i].Length);
@@ -144,7 +144,7 @@ bool QuicStream::receiveData(DataPacket& data)
 
 bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 {
-	if (stream_->Handle) {
+	if (stream_ != nullptr) {
 		QUIC_STATUS Status;
 
 		auto packetSize = size + sizeof(DataPayload);
@@ -185,7 +185,7 @@ bool QuicStream::Send(const uint8_t* buf, uint32_t size)
 
 bool QuicStream::Send(const char* buf, uint32_t size)
 {
-	if (stream_->Handle) {
+	if (stream_ != nullptr) {
 		QUIC_STATUS Status;
 
 		auto packetSize = size + sizeof(DataPayload);
@@ -287,6 +287,7 @@ bool QuicStream::InitializeSend(const char* id)
 
 	return true;
 }
+
 bool QuicStream::isBroken()
 {
 	return brokenStream;
