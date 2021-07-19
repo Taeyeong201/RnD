@@ -89,6 +89,9 @@ int main() {
 			quicFramework.streamManager_.DeleteStream(select.c_str());
 			//printf("Delete Stream Name : %s\n", select.c_str());
 		}
+		else if (input_string.compare("shutdown") == 0) {
+
+		}
 		else {
 			//for (int i = 0; i < 20; i++) {};
 			quicFramework.streamManager_[selectStream.c_str()]->Send(input_string.c_str(), input_string.length() + 1);

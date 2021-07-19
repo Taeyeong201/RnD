@@ -11,6 +11,8 @@ void QuicStreamManager::DeleteAllStream()
 	streamMap_.clear();
 	brokenConnection = true;
 	streamCount = 0;
+
+	cv_.notify_all();
 }
 
 void QuicStreamManager::NewStream(const char* name)
@@ -53,16 +55,16 @@ void QuicStreamManager::DeleteStream(const char* name)
 bool QuicStreamManager::WaitForCreateStream()
 {
 	PLOG_INFO << "Waiting for create stream";
+	streamCount++;
 
 	std::unique_lock<std::mutex> lk(mutex_);
-	cv_.wait(lk, [&] {return (streamMap_.size() > streamCount) || brokenConnection; });
+	cv_.wait(lk, [&] {return (streamMap_.size() >= streamCount) || brokenConnection; });
 	lk.unlock();
 
 
 	if (brokenConnection) {
 		return false;
 	}
-	streamCount++;
 
 	return true;
 }
@@ -137,6 +139,9 @@ void QuicStreamManager::EventConnected(MsQuicConnection* _connection)
 	}
 	if (streamMap_.size() > 0)
 		for (auto it = streamMap_.begin(); it != streamMap_.end(); it++) {
+			it->second->RegistDeleteCallback(
+				std::bind(&QuicStreamManager::DeleteStream, this, std::placeholders::_1)
+			);
 			it->second->stream_ =
 				new(std::nothrow) MsQuicStream(
 					*connection_,
@@ -146,9 +151,7 @@ void QuicStreamManager::EventConnected(MsQuicConnection* _connection)
 					it->second.get()
 				);
 			it->second->stream_->Start();
-			it->second->RegistDeleteCallback(
-				std::bind(&QuicStreamManager::DeleteStream, this, std::placeholders::_1)
-			);
+
 			//if (!it->second->InitializeSend(it->first.c_str())) {
 			//	PLOG_ERROR << "init send failed";
 			//};

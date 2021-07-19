@@ -53,6 +53,7 @@ int main() {
 	std::string input_string;
 
 	quicFramework.streamManager_.WaitForCreateStream();
+	quicFramework.streamManager_.WaitForCreateStream();
 	//quicFramework.stream_.InitializeReceive();
 	printf("connect\n");
 
