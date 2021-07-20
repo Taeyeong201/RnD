@@ -178,7 +178,7 @@ QuicStream* QuicStreamManager::operator[](const char* key)
 	if (streamMap_.count(key) > 0)
 		return streamMap_[key].get();
 	else
-		throw std::exception("Not Found Stream");
+		throw std::exception(std::string("Not Found Stream : ").append(key).c_str());
 }
 
 
