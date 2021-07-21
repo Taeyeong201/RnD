@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <functional>
+#include <condition_variable>
 
 #include <deque>
 #include <mutex>
@@ -51,6 +52,7 @@ private:
 	BlockingConcurrentQueue<DataPacket> remainQueue_;
 #else
 	std::deque<DataPacket> deque_;
+	std::condition_variable cv_;
 	std::unique_ptr<std::mutex> recvMutex;
 #endif
 };

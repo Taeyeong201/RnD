@@ -21,6 +21,8 @@ public:
 	bool WaitForCreateStream();
 	bool WaitForCreateConnection();
 
+	void SetConnection(MsQuicConnection* connection);
+
 	std::vector<std::string> getStreamList();
 
 	QuicStream* operator[](const char* key);

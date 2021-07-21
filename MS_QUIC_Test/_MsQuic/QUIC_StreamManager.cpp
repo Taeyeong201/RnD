@@ -82,6 +82,11 @@ bool QuicStreamManager::WaitForCreateConnection()
 	return true;
 }
 
+void QuicStreamManager::SetConnection(MsQuicConnection* connection)
+{
+	this->connection_ = connection;
+}
+
 std::vector<std::string> QuicStreamManager::getStreamList()
 {
 	std::vector<std::string> tmp;

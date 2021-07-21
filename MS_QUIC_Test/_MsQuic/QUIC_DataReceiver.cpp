@@ -31,7 +31,6 @@ bool QuicDataReceiver::getData(DataPacket& data)
 	DataPacket packet = { 0, };
 	DataPacket remainPacket = { 0, };
 	unsigned long long start, end;
-	static int asd = 0;
 
 	if (!stopRecv) {
 #if QUEUE
@@ -39,27 +38,35 @@ bool QuicDataReceiver::getData(DataPacket& data)
 		else
 			queue_.wait_dequeue(packet);
 #else
-		while (deque_.empty()) Sleep(1);
+		std::unique_lock<std::mutex> lk(*recvMutex);
+		cv_.wait(lk, [&] {return !deque_.empty() || stopRecv; });
+		if (stopRecv) {
+			lk.unlock();
+			return false;
+		}
 
-		recvMutex->lock();
 		packet = deque_.front();
 		deque_.pop_front();
-		recvMutex->unlock();
+		lk.unlock();
 #endif
-		if (!packet.data)
-			return false;
+
 
 		// Packet Size가 Payload Size 보다 작을때
 		if (packet.size < sizeof(DataPayload)) {
 #if QUEUE
 			queue_.wait_dequeue(remainPacket);
 #else
-			while (deque_.empty()) Sleep(1);
+			std::unique_lock<std::mutex> lk(*recvMutex);
+			cv_.wait(lk, [&] {return !deque_.empty() || stopRecv; });
+			if (stopRecv) {
+				lk.unlock();
+				return false;
+			}
 
-			recvMutex->lock();
 			remainPacket = deque_.front();
 			deque_.pop_front();
-			recvMutex->unlock();
+
+			lk.unlock();
 #endif
 			auto tmp = std::shared_ptr<unsigned char>(
 				new unsigned char[packet.size + remainPacket.size],
@@ -98,15 +105,18 @@ bool QuicDataReceiver::getData(DataPacket& data)
 #if QUEUE
 					queue_.wait_dequeue(remainPacket);
 #else
-					while (deque_.empty()) Sleep(1);
+					std::unique_lock<std::mutex> lk(*recvMutex);
+					cv_.wait(lk, [&] {return !deque_.empty() || stopRecv; });
+					if (stopRecv) {
+						lk.unlock();
+						return false;
+					}
 
-					recvMutex->lock();
 					remainPacket = deque_.front();
 					deque_.pop_front();
-					recvMutex->unlock();
+
+					lk.unlock();
 #endif
-					if (!remainPacket.data)
-						return false;
 
 					totalRecvSize += remainPacket.size;
 
@@ -164,6 +174,8 @@ bool QuicDataReceiver::remainingPacket(uint8_t* packetBuf, uint32_t remainPacket
 	recvMutex->lock();
 	deque_.push_front(std::move(remainPacket));
 	recvMutex->unlock();
+
+	cv_.notify_one();
 #endif
 	return true;
 }
@@ -185,6 +197,7 @@ void QuicDataReceiver::queueBuffer(uint8_t* buffer, unsigned int size)
 	recvMutex->lock();
 	deque_.push_back(std::move(packet));
 	recvMutex->unlock();
+	cv_.notify_one();
 #endif
 	//if (queue_.size_approx() > 30)
 	//	std::cout << "warning recv queue overflow" << std::endl;
@@ -200,6 +213,7 @@ void QuicDataReceiver::shutdownGetDataFunc()
 	recvMutex->lock();
 	deque_.push_back(std::move(packet));
 	recvMutex->unlock();
+	cv_.notify_all();
 #endif
 }
 

@@ -209,7 +209,8 @@ QUIC_STATUS QuicFramework::ServerConnCallback(
 	switch (Event->Type) {
 	case QUIC_CONNECTION_EVENT_CONNECTED:
 		PLOG_INFO.printf("[conn][%p] Connected", Connection->Handle);
-		if (ctx) ctx->quicConnection_ = Connection;
+		ctx->quicConnection_ = Connection;
+		ctx->streamManager_.SetConnection(Connection);
 		Connection->SendResumptionTicket(QUIC_SEND_RESUMPTION_FLAG_FINAL, 0, nullptr);
 		break;
 	case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:

@@ -58,8 +58,10 @@ int main() {
 		else if (input_string.compare("r") == 0) {
 			DataPacket data = { 0, };
 			try {
-				quicFramework.streamManager_[selectStream.c_str()]->receiveData(data);
-				printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+				if (quicFramework.streamManager_[selectStream.c_str()]->receiveData(data))
+					printf("recv : %s\n", std::string((char*)data.data.get()).c_str());
+				else
+					printf("recv failed\n");
 			}
 			catch (std::exception& error) {
 				std::cout << "null stream" << std::endl;
