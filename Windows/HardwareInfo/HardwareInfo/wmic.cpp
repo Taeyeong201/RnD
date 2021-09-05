@@ -144,6 +144,9 @@ WMIC_OperatingSystem WMIC::OperatingSystem()
 	ULONG uReturn = 0;
 
 	WMIC_OperatingSystem operatingSystem;
+#ifdef _DEBUG
+	std::wcout << "-------- OS INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -151,7 +154,7 @@ WMIC_OperatingSystem WMIC::OperatingSystem()
 			break;
 		}
 
-		VARIANT vtProp;
+		VARIANT vtProp = { 0, };
 
 		hr = pclsObj->Get(L"Caption", 0, &vtProp, 0, 0);
 		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
@@ -226,6 +229,9 @@ std::vector<WMIC_VideoController> WMIC::VideoController()
 
 	std::vector<WMIC_VideoController> set;
 	WMIC_VideoController videoController;
+#ifdef _DEBUG
+	std::wcout << "-------- Graphics Card INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -276,6 +282,9 @@ std::vector<WMIC_DiskDrive> WMIC::DiskDrive()
 
 	std::vector<WMIC_DiskDrive> set;
 	WMIC_DiskDrive diskDrive;
+#ifdef _DEBUG
+	std::wcout << "-------- Disk Dirve INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -339,6 +348,9 @@ WMIC_BaseBoard WMIC::BaseBoard()
 
 
 	WMIC_BaseBoard baseBoard;
+#ifdef _DEBUG
+	std::wcout << "-------- MainBoard INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -380,7 +392,7 @@ WMIC_BaseBoard WMIC::BaseBoard()
 		VariantClear(&vtProp);
 
 #ifdef _DEBUG
-		std::wcout.imbue(std::locale("chs"));
+		std::wcout.imbue(std::locale("korean"));
 		std::wcout
 			<< baseBoard.name << "\t"
 			<< baseBoard.manufacturer << "\t"
@@ -409,6 +421,9 @@ WMIC_BIOS WMIC::BIOS()
 
 
 	WMIC_BIOS bios;
+#ifdef _DEBUG
+	std::wcout << "-------- BIOS INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -438,7 +453,7 @@ WMIC_BIOS WMIC::BIOS()
 		VariantClear(&vtProp);
 
 #ifdef _DEBUG
-		std::wcout.imbue(std::locale("chs"));
+		std::wcout.imbue(std::locale("korean"));
 		std::wcout
 			<< bios.manufacturer << "\t"
 			<< bios.releaseDate << "\t"
@@ -466,6 +481,9 @@ std::vector<WMIC_PhysicalMemory> WMIC::PhysicalMemory()
 
 	std::vector<WMIC_PhysicalMemory> set;
 	WMIC_PhysicalMemory physicalMemory;
+#ifdef _DEBUG
+	std::wcout << "-------- RAM INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -510,7 +528,7 @@ std::vector<WMIC_PhysicalMemory> WMIC::PhysicalMemory()
 		set.push_back(physicalMemory);
 
 #ifdef _DEBUG
-		std::wcout.imbue(std::locale("chs"));
+		std::wcout.imbue(std::locale("korean"));
 		std::wcout
 			<< physicalMemory.name << "\t"
 			<< physicalMemory.manufacturer << "\t"
@@ -540,6 +558,9 @@ std::vector<WMIC_Processor> WMIC::Processor()
 
 	std::vector<WMIC_Processor> set;
 	WMIC_Processor processor;
+#ifdef _DEBUG
+	std::wcout << "-------- CPU INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -595,7 +616,7 @@ std::vector<WMIC_Processor> WMIC::Processor()
 		set.push_back(processor);
 
 #ifdef _DEBUG
-		std::wcout.imbue(std::locale("chs"));
+		std::wcout.imbue(std::locale("korean"));
 		std::wcout
 			<< processor.name << "\t"
 			<< processor.desc << "\t"
@@ -627,6 +648,9 @@ std::vector<WMIC_NetworkAdapter> WMIC::NetworkAdapter()
 
 	std::vector<WMIC_NetworkAdapter> set;
 	WMIC_NetworkAdapter networkAdapter;
+#ifdef _DEBUG
+	std::wcout << "-------- Network Card INFO -------\n";
+#endif
 	while (pEnumerator) {
 		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -636,6 +660,18 @@ std::vector<WMIC_NetworkAdapter> WMIC::NetworkAdapter()
 
 		VARIANT vtProp;
 		VariantInit(&vtProp);
+
+		hr = pclsObj->Get(L"NetEnabled", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BOOL)) {
+			networkAdapter.isEnable = vtProp.boolVal;
+		}
+		VariantClear(&vtProp);
+
+		hr = pclsObj->Get(L"PhysicalAdapter", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BOOL)) {
+			networkAdapter.physicalAdapter = vtProp.boolVal;
+		}
+		VariantClear(&vtProp);
 
 		// Get the value of the Name property
 		hr = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
@@ -647,6 +683,12 @@ std::vector<WMIC_NetworkAdapter> WMIC::NetworkAdapter()
 		hr = pclsObj->Get(L"Description", 0, &vtProp, 0, 0);
 		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
 			networkAdapter.desc = vtProp.bstrVal;
+		}
+		VariantClear(&vtProp);
+
+		hr = pclsObj->Get(L"NetConnectionID", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
+			networkAdapter.netConnectionID = vtProp.bstrVal;
 		}
 		VariantClear(&vtProp);
 
@@ -671,14 +713,17 @@ std::vector<WMIC_NetworkAdapter> WMIC::NetworkAdapter()
 		set.push_back(networkAdapter);
 
 #ifdef _DEBUG
-		std::wcout.imbue(std::locale("chs"));
-		std::wcout
-			<< networkAdapter.name << "\t"
-			<< networkAdapter.desc << "\t"
-			<< networkAdapter.manufacturer << "\t"
-			<< networkAdapter.macAddress << "\t"
-			<< networkAdapter.adapterType << "\t"
-			<< std::endl;
+		if (networkAdapter.isEnable && networkAdapter.physicalAdapter) {
+			std::wcout.imbue(std::locale("korean"));
+			std::wcout
+				<< networkAdapter.name << "\t"
+				//<< networkAdapter.desc << "\t"
+				<< networkAdapter.netConnectionID << "\t"
+				//<< networkAdapter.manufacturer << "\t"
+				<< networkAdapter.macAddress << "\t"
+				//<< networkAdapter.adapterType << "\t"
+				<< std::endl;
+		}
 #endif
 
 		pclsObj->Release();

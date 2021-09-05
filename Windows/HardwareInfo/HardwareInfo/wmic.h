@@ -101,6 +101,9 @@ struct WMIC_Processor
 struct WMIC_NetworkAdapter
 {
     std::wstring name;
+    bool isEnable;
+    bool physicalAdapter;
+    std::wstring netConnectionID;
     std::wstring desc;//Description
     std::wstring manufacturer;
     std::wstring macAddress;
