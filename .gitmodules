@@ -1,0 +1,3 @@
+[submodule "Video_Test/D3D11NV12Rendering"]
+	path = Video_Test/D3D11NV12Rendering
+	url = https://github.com/Taeyeong201/D3D11NV12Rendering.git
