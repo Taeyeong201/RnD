@@ -2,10 +2,9 @@
 
 #include <windows.h>
 #include <stdio.h>
-#pragma comment(lib, "user32.lib")    
+#pragma comment(lib, "user32.lib")
 
-void main()
-{
+void SetMouseKeys() {
 	BOOL fResult;
 	MOUSEKEYS aMouseInfo = { 0, };
 	aMouseInfo.cbSize = sizeof(MOUSEKEYS);
@@ -39,50 +38,26 @@ void main()
 			else
 				printf("on fail\n");
 		}
-
-
-		//if (MKF_MOUSEMODE & aMouseInfo.dwFlags) {
-		//	printf("on MKF_MOUSEMODE\n");
-		//	aMouseInfo.dwFlags -= MKF_MOUSEMODE;
-		//	fResult = SystemParametersInfo(SPI_SETMOUSEKEYS,
-		//		sizeof(MOUSEKEYS),
-		//		&aMouseInfo,
-		//		0);
-		//	if (fResult)
-		//		printf("off MKF_MOUSEMODE\n");
-		//	else
-		//		printf("off fail\n");
-		//}
-		//else {
-		//	aMouseInfo.dwFlags |= MKF_MOUSEMODE;
-		//	fResult = SystemParametersInfo(SPI_SETMOUSEKEYS,
-		//		sizeof(MOUSEKEYS),
-		//		&aMouseInfo,
-		//		0);
-		//	if (fResult)
-		//		printf("on MKF_MOUSEMODE\n");
-		//	else
-		//		printf("on fail\n");
-		//}
 	}
 	else {
 		printf("get info fail\n");
 	}
+}
+
+void SetDpi(int dpi) {
+	BOOL fResult;
+	MOUSEKEYS aMouseInfo = { 0, };
+	aMouseInfo.cbSize = sizeof(MOUSEKEYS);
+
+	fResult = SystemParametersInfo(SPI_GETLOGICALDPIOVERRIDE,
+		sizeof(MOUSEKEYS),
+		&aMouseInfo,
+		0);
+}
+
+void main()
+{
+	SetMouseKeys();
 
 	system("pause");
-
-	// Double it.         
-		//if (fResult)
-		//{
-		//    aMouseInfo[2] = 2 * aMouseInfo[2];
-
-		//    // Change the mouse speed to the new value.
-		//    SystemParametersInfo(SPI_SETMOUSE,      // Set mouse information
-		//        0,                 // Not used
-		//        aMouseInfo,        // Mouse information
-		//        SPIF_SENDCHANGE);  // Update Win.ini
-		//}
-
-
-
 }
