@@ -7,7 +7,6 @@ void ChangeDisplayResolution()
 	DWORD           DispNum = 0;
 	DISPLAY_DEVICE  DisplayDevice;
 	LONG            Result;
-	TCHAR           szTemp[200];
 	int             i = 0;
 	DEVMODE   defaultMode;
 
@@ -84,7 +83,6 @@ void ChangePrimary() {
 	DISPLAY_DEVICE  PrimaryDisplayDevice;
 	DISPLAY_DEVICE	SecondaryDisplayDevice;
 	LONG            Result;
-	TCHAR           szTemp[200];
 	int             i = 0;
 	DEVMODE   defaultMode;
 	DEVMODE   temp = { 0, };
@@ -152,7 +150,6 @@ void ChangeDisplayPositionX() {
 	DISPLAY_DEVICE  DisplayDevice;
 	DISPLAY_DEVICE  SecondaryDisplayDevice;
 	LONG            Result;
-	TCHAR           szTemp[200];
 	int             i = 0;
 	DEVMODE   defaultMode;
 	DEVMODE   primary_current = { 0, };
