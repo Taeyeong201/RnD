@@ -1,8 +1,12 @@
 // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa
+#include <string>
+#include <iostream>
 
 #include <windows.h>
 #include <stdio.h>
 #pragma comment(lib, "user32.lib")
+
+
 
 void SetMouseKeys() {
 	BOOL fResult;
@@ -57,6 +61,17 @@ void SetDpi(int dpi) {
 
 void main()
 {
+	std::string test("asd123");
+
+	try {
+	stoi(test);
+
+	}
+	catch (...) {
+		printf("asdasd");
+	}
+
+
 	SetMouseKeys();
 
 	system("pause");
