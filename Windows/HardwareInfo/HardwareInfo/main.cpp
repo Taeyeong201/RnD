@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 		w.DiskDrive();
 		w.BaseBoard();
 		w.BIOS();
+		w.SMBIOS();
 		w.PhysicalMemory();
 		w.Processor();
 		w.NetworkAdapter();

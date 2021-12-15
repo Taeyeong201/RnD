@@ -63,6 +63,15 @@ struct WMIC_BaseBoard
     std::wstring serialNumber;
 };
 
+//SM-BIOS Win32_ComputerSystemProduct
+struct WMIC_SMBIOS
+{
+    std::wstring name;
+    std::wstring IdentifyingNumber;
+    std::wstring UUID;
+    std::wstring Vendor;
+};
+
 //MotherBoard BIOS Win32_BIOS
 struct WMIC_BIOS
 {
@@ -132,6 +141,7 @@ public:
     std::vector<WMIC_VideoController> VideoController();// Graphics Card
     std::vector<WMIC_DiskDrive> DiskDrive();//Hard drive
     WMIC_BaseBoard BaseBoard();
+    WMIC_SMBIOS SMBIOS();
     WMIC_BIOS BIOS();
     std::vector<WMIC_PhysicalMemory> PhysicalMemory();
     std::vector<WMIC_Processor> Processor();//CPU processor

@@ -409,6 +409,69 @@ WMIC_BaseBoard WMIC::BaseBoard()
 	return baseBoard;
 }
 
+WMIC_SMBIOS WMIC::SMBIOS()
+{
+	IEnumWbemClassObject* pEnumerator = ExecQuery(L"Win32_ComputerSystemProduct");
+
+	IWbemClassObject* pclsObj = NULL;
+	ULONG uReturn = 0;
+
+
+	WMIC_SMBIOS SMBIOS;
+#ifdef _DEBUG
+	std::wcout << "-------- SMBIOS INFO -------\n";
+#endif
+	while (pEnumerator) {
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+		if (0 == uReturn) {
+			break;
+		}
+
+		VARIANT vtProp;
+
+		// Get the value of the Name property
+		hr = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
+			SMBIOS.name = vtProp.bstrVal;
+		}
+		VariantClear(&vtProp);
+
+		hr = pclsObj->Get(L"IdentifyingNumber", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
+			SMBIOS.IdentifyingNumber = vtProp.bstrVal;
+		}
+		VariantClear(&vtProp);
+
+		hr = pclsObj->Get(L"UUID", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
+			SMBIOS.UUID = vtProp.bstrVal;
+		}
+		VariantClear(&vtProp);
+
+		hr = pclsObj->Get(L"Vendor", 0, &vtProp, 0, 0);
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)) {
+			SMBIOS.Vendor = vtProp.bstrVal;
+		}
+		VariantClear(&vtProp);
+
+#ifdef _DEBUG
+		std::wcout.imbue(std::locale("korean"));
+		std::wcout
+			<< SMBIOS.name << "\t"
+			<< SMBIOS.IdentifyingNumber << "\t"
+			<< SMBIOS.UUID << "\t"
+			<< SMBIOS.Vendor
+			<< std::endl;
+#endif
+
+		pclsObj->Release();
+	}
+	pEnumerator->Release();
+
+	return SMBIOS;
+}
+
 WMIC_BIOS WMIC::BIOS()
 {
 	IEnumWbemClassObject* pEnumerator = ExecQuery(L"Win32_BIOS");
