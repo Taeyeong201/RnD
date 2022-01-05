@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{84C3AAC5-55C7-4066-9F0D-31FAFE119912}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{44060D8D-85E4-4014-B2F7-9182D8FCDBCE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProtobufSample", "ProtobufSample\ProtobufSample.vcxitems", "{D47E5F6D-71F9-4C66-84C2-C07137C65FE5}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ProtobufSample\ProtobufSample.vcxitems*{44060d8d-85e4-4014-b2f7-9182d8fcdbce}*SharedItemsImports = 4
+		ProtobufSample\ProtobufSample.vcxitems*{84c3aac5-55c7-4066-9f0d-31fafe119912}*SharedItemsImports = 4
+		ProtobufSample\ProtobufSample.vcxitems*{d47e5f6d-71f9-4c66-84c2-c07137c65fe5}*SharedItemsImports = 9
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84C3AAC5-55C7-4066-9F0D-31FAFE119912}.Debug|x64.ActiveCfg = Debug|x64
+		{84C3AAC5-55C7-4066-9F0D-31FAFE119912}.Debug|x64.Build.0 = Debug|x64
+		{84C3AAC5-55C7-4066-9F0D-31FAFE119912}.Release|x64.ActiveCfg = Release|x64
+		{84C3AAC5-55C7-4066-9F0D-31FAFE119912}.Release|x64.Build.0 = Release|x64
+		{44060D8D-85E4-4014-B2F7-9182D8FCDBCE}.Debug|x64.ActiveCfg = Debug|x64
+		{44060D8D-85E4-4014-B2F7-9182D8FCDBCE}.Debug|x64.Build.0 = Debug|x64
+		{44060D8D-85E4-4014-B2F7-9182D8FCDBCE}.Release|x64.ActiveCfg = Release|x64
+		{44060D8D-85E4-4014-B2F7-9182D8FCDBCE}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90BC6C60-B557-4C69-952E-7ECE841632CD}
+	EndGlobalSection
+EndGlobal
