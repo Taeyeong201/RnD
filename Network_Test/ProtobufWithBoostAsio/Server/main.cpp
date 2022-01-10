@@ -8,6 +8,8 @@
 #include "AsioAdapting.h"
 #include "addressbook.pb.h"
 
+#include "testMsg.pb.h"
+
 using boost::asio::ip::tcp;
 
 bool LoadCerificate(boost::asio::ssl::context& ctx);
@@ -36,9 +38,34 @@ int main()
 		do {
 			++i;
 
-			tutorial::Person myMessage;
-			myMessage.set_id(i);
-			google::protobuf::io::writeDelimitedTo(myMessage, &cos_adp);
+			tutorial::TestMsg testmsg;
+
+			switch (i % 3) {
+			case 0: 
+			{
+				tutorial::Test1* test = testmsg.mutable_test1();
+				test->set_data(i);
+			}
+				break;
+			case 1:
+			{
+				tutorial::Test2* test = testmsg.mutable_test2();
+				test->set_text("test2");
+			}
+				break;
+			case 2:
+			{
+				tutorial::Test3* test = testmsg.mutable_test3();
+				test->set_text("test3");
+			}
+				break;
+			default:
+				break;
+			}
+
+			
+			//myMessage.set_id(i);
+			google::protobuf::io::writeDelimitedTo(testmsg, &cos_adp);
 			// Now we have to flush, otherwise the write to the socket won't happen until enough bytes accumulate
 			cos_adp.Flush();
 

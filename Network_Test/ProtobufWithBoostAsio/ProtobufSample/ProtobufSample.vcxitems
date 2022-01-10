@@ -16,13 +16,16 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)addressbook.pb.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ProtobufHelpers.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)testMsg.pb.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)addressbook.pb.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ProtobufHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)AsioAdapting.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)testMsg.pb.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)addressbook.proto" />
+    <None Include="$(MSBuildThisFileDirectory)testMsg.proto" />
   </ItemGroup>
 </Project>
