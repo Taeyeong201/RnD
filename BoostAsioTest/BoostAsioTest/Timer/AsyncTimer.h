@@ -17,7 +17,7 @@ public:
 	void ResetTimer();
 	void CloseTimer();
 private:
-	void run_timer(int current_id, const boost::system::error_code& error);
+	void run_timer(std::size_t current_id, const boost::system::error_code& error);
 	void cancel_timer();
 	void restart_timer();
 

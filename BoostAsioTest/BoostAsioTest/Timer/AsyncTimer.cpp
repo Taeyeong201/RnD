@@ -39,7 +39,7 @@ void AsyncTimer::CloseTimer()
 	cancel_timer();
 }
 
-void AsyncTimer::run_timer(int current_id, const boost::system::error_code& error) 
+void AsyncTimer::run_timer(std::size_t current_id, const boost::system::error_code& error)
 {
 	if (error || current_id != timer_id) {
 		std::cout << "timer cancel " << current_id << std::endl;
