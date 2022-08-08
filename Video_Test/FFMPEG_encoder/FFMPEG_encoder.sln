@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFMPEG_encoder", "FFMPEG_encoder\FFMPEG_encoder.vcxproj", "{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFMPEG_encoder_cpp", "FFMPEG_encoder_cpp\FFMPEG_encoder_cpp.vcxproj", "{1A75B40E-81E3-4668-A232-A7BFCED0841C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Debug|x64.ActiveCfg = Debug|x64
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Debug|x64.Build.0 = Debug|x64
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Debug|x86.ActiveCfg = Debug|Win32
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Debug|x86.Build.0 = Debug|Win32
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Release|x64.ActiveCfg = Release|x64
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Release|x64.Build.0 = Release|x64
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Release|x86.ActiveCfg = Release|Win32
+		{B0F421FA-88AD-4B6E-AA27-B42A19F9FD0C}.Release|x86.Build.0 = Release|Win32
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Debug|x64.ActiveCfg = Debug|x64
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Debug|x64.Build.0 = Debug|x64
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Debug|x86.ActiveCfg = Debug|Win32
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Debug|x86.Build.0 = Debug|Win32
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Release|x64.ActiveCfg = Release|x64
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Release|x64.Build.0 = Release|x64
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Release|x86.ActiveCfg = Release|Win32
+		{1A75B40E-81E3-4668-A232-A7BFCED0841C}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {27A8A57D-9355-4F2B-920F-F5406E09EF50}
+	EndGlobalSection
+EndGlobal
