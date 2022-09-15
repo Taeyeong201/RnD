@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	c->gop_size = 10;
 	//c->max_b_frames = 1;
 	c->pix_fmt = AV_PIX_FMT_NV12;
-	c->global_quality = 51;
+	c->global_quality = 25;
 
 	if (codec->id == AV_CODEC_ID_H264)
 		av_opt_set(c->priv_data, "preset", "slow", 0);

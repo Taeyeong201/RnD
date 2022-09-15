@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
 	FFEncoder encoder;
-	EncodeParams params{ "h264", 1920, 1080, 1024*1024, 30, 5, 1 };
+	EncodeParams params{ "h265", 1920, 1080, 1024*1024, 30, 5, 1 };
 	encoder.Init(params);
 
 	constexpr unsigned int nv12_frame_size = 1920 * 1080 * 3 / 2;
