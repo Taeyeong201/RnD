@@ -37,6 +37,10 @@ int main(int argc, char** argv)
     bool bEnableOutput; // if true, removes all output bitsteam file writing and printing the progress
     CmdOptions options;
 
+    mfxU16 bitrate = 10000;
+    mfxU16 width = 1920;
+    mfxU16 height = 1080;
+
     // =====================================================================
     // Intel Media SDK encode pipeline setup
     // - In this example we are encoding an AVC (H.264) stream
@@ -46,26 +50,10 @@ int main(int argc, char** argv)
 
     // Read options from the command line (if any is given)
     memset(&options, 0, sizeof(CmdOptions));
-    options.ctx.options = OPTIONS_ENCODE;
-    options.ctx.usage = usage;
-    // Set default values:
-    options.values.impl = MFX_IMPL_AUTO_ANY;
 
     // here we parse options
     ParseOptions(argc, argv, &options);
 
-    if (!options.values.Width || !options.values.Height) {
-        printf("error: input video geometry not set (mandatory)\n");
-        return -1;
-    }
-    if (!options.values.Bitrate) {
-        printf("error: bitrate not set (mandatory)\n");
-        return -1;
-    }
-    if (!options.values.FrameRateN || !options.values.FrameRateD) {
-        printf("error: framerate not set (mandatory)\n");
-        return -1;
-    }
     bEnableInput = (options.values.SourceName[0] != '\0');
     bEnableOutput = (options.values.SinkName[0] != '\0');
     fileUniPtr fSource(nullptr, &CloseFile);
@@ -87,7 +75,7 @@ int main(int argc, char** argv)
     // - On Windows both SW and HW libraries may present
     // - On Linux only HW library only is available
     //   If more recent API features are needed, change the version accordingly
-    mfxIMPL impl = options.values.impl;
+    mfxIMPL impl = MFX_IMPL_AUTO_ANY;
     mfxVersion ver = { {0, 1} };
     MFXVideoSession session;
 
@@ -105,25 +93,25 @@ int main(int argc, char** argv)
     memset(&mfxEncParams, 0, sizeof(mfxEncParams));
 
     mfxEncParams.mfx.CodecId = MFX_CODEC_AVC;
-    mfxEncParams.mfx.TargetUsage = MFX_TARGETUSAGE_BALANCED;
-    mfxEncParams.mfx.TargetKbps = options.values.Bitrate;
+    mfxEncParams.mfx.TargetUsage = MFX_TARGETUSAGE_BEST_SPEED;
+    mfxEncParams.mfx.TargetKbps = bitrate;
     mfxEncParams.mfx.RateControlMethod = MFX_RATECONTROL_VBR;
-    mfxEncParams.mfx.FrameInfo.FrameRateExtN = options.values.FrameRateN;
-    mfxEncParams.mfx.FrameInfo.FrameRateExtD = options.values.FrameRateD;
+    mfxEncParams.mfx.FrameInfo.FrameRateExtN = 24;
+    mfxEncParams.mfx.FrameInfo.FrameRateExtD = 1;
     mfxEncParams.mfx.FrameInfo.FourCC = MFX_FOURCC_NV12;
     mfxEncParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
     mfxEncParams.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
     mfxEncParams.mfx.FrameInfo.CropX = 0;
     mfxEncParams.mfx.FrameInfo.CropY = 0;
-    mfxEncParams.mfx.FrameInfo.CropW = options.values.Width;
-    mfxEncParams.mfx.FrameInfo.CropH = options.values.Height;
+    mfxEncParams.mfx.FrameInfo.CropW = width;
+    mfxEncParams.mfx.FrameInfo.CropH = height;
     // Width must be a multiple of 16
     // Height must be a multiple of 16 in case of frame picture and a multiple of 32 in case of field picture
-    mfxEncParams.mfx.FrameInfo.Width = MSDK_ALIGN16(options.values.Width);
+    mfxEncParams.mfx.FrameInfo.Width = MSDK_ALIGN16(width);
     mfxEncParams.mfx.FrameInfo.Height =
         (MFX_PICSTRUCT_PROGRESSIVE == mfxEncParams.mfx.FrameInfo.PicStruct) ?
-        MSDK_ALIGN16(options.values.Height) :
-        MSDK_ALIGN32(options.values.Height);
+        MSDK_ALIGN16(height) :
+        MSDK_ALIGN32(height);
 
     mfxEncParams.IOPattern = MFX_IOPATTERN_IN_VIDEO_MEMORY;
 
