@@ -21,6 +21,7 @@
 #include "common_utils.h"
 
 // ATTENTION: If D3D surfaces are used, DX9_D3D or DX11_D3D must be set in project settings or hardcoded here
+#define DX9_D3D 1
 
 #ifdef DX9_D3D
 #include "common_directx.h"
