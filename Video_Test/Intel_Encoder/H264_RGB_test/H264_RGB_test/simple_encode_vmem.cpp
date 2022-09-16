@@ -98,8 +98,8 @@ int main(int argc, char** argv)
     mfxEncParams.mfx.RateControlMethod = MFX_RATECONTROL_VBR;
     mfxEncParams.mfx.FrameInfo.FrameRateExtN = 24;
     mfxEncParams.mfx.FrameInfo.FrameRateExtD = 1;
-    mfxEncParams.mfx.FrameInfo.FourCC = MFX_FOURCC_NV12;
-    mfxEncParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+    mfxEncParams.mfx.FrameInfo.FourCC = MFX_FOURCC_RGB4;
+    mfxEncParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
     mfxEncParams.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
     mfxEncParams.mfx.FrameInfo.CropX = 0;
     mfxEncParams.mfx.FrameInfo.CropY = 0;
@@ -193,7 +193,7 @@ int main(int argc, char** argv)
         sts = mfxAllocator.Lock(mfxAllocator.pthis, pmfxSurfaces[nEncSurfIdx].Data.MemId, &(pmfxSurfaces[nEncSurfIdx].Data));
         MSDK_BREAK_ON_ERROR(sts);
 
-        sts = LoadRawFrame(&pmfxSurfaces[nEncSurfIdx], fSource.get());
+        sts = LoadRawRGBFrame(&pmfxSurfaces[nEncSurfIdx], fSource.get());
         MSDK_BREAK_ON_ERROR(sts);
 
         sts = mfxAllocator.Unlock(mfxAllocator.pthis, pmfxSurfaces[nEncSurfIdx].Data.MemId, &(pmfxSurfaces[nEncSurfIdx].Data));
